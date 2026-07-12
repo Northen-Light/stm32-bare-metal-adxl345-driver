@@ -7,9 +7,9 @@ LDFALGS		= -Tlinker/main.ld -Map=main.map
 
 SRCS			= \
 						startup/startup.c \
-						src/main.c	\
-						src/adxl345.c \
-						src/i2c.c	\
+						app/main.c	\
+						drivers/adxl345.c \
+						drivers/i2c.c	\
 
 OBJS			= $(SRCS:.c=.o)
 
