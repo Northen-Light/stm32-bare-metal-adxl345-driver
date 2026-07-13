@@ -3,7 +3,7 @@
 
 static void i2c1_wait_bus_free(void);
 static void i2c1_start(void);
-static void i2c1_send_address(uint8_t slave_addr, dir_t dir);
+static void i2c1_send_address(uint8_t slave_addr, i2c_dir_t dir);
 static void i2c1_clear_addr(void);
 static void i2c1_write_byte(uint8_t data);
 static void i2c1_wait_for_BTF(void);
@@ -58,9 +58,10 @@ void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_
   i2c1_send_address(slave_address, I2C_READ);
   i2c1_clear_addr();
   
-  while (remaining-- > 3U) {
+  while (remaining > 3U) {
     while (!(I2C1_SR1 & (1U << 6U)));
     *buffer++ = I2C1_DR;
+    remaining--;
   }
 
   i2c1_wait_for_BTF();
@@ -70,13 +71,11 @@ void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_
 
   i2c1_stop();
   
-  while (!(I2C1_SR1 & (1U << 6U)));
-  *buffer++ = I2C1_DR;
-  remaining--;
-
-  while (!(I2C1_SR1 & (1U << 6U)));
-  *buffer++ = I2C1_DR;
-  remaining--;
+  while (remaining > 0) {
+    while (!(I2C1_SR1 & (1U << 6U)));
+    *buffer++ = I2C1_DR;
+    remaining--;
+  }
   
   I2C1_CR1 |= (1U << 10U);
 }
@@ -101,7 +100,7 @@ static void i2c1_start(void) {
   while (!(I2C1_SR1 & (1U << 0U)));
 }
 
-static void i2c1_send_address(uint8_t slave_addr, dir_t dir) {
+static void i2c1_send_address(uint8_t slave_addr, i2c_dir_t dir) {
   I2C1_DR = (uint8_t)(slave_addr << 1U | (uint8_t) dir);
   while (!(I2C1_SR1 & (1U << 1U)));
 }
