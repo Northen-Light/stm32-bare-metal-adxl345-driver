@@ -1,33 +1,50 @@
-CC				= arm-none-eabi-gcc
-LD				= arm-none-eabi-ld
-OBJCOPY		= arm-none-eabi-objcopy
+CC      = arm-none-eabi-gcc
+OBJCOPY = arm-none-eabi-objcopy
 
-CCFLAGS		= -Iinclude -mthumb -mcpu=cortex-m3 -O0 -ggdb -Wall -Wextra -Wconversion
-LDFALGS		= -Tlinker/main.ld -Map=main.map
+CPUFLAGS = -mcpu=cortex-m3 -mthumb
 
-SRCS			= \
-						startup/startup.c \
-						app/main.c	\
-						drivers/adxl345.c \
-						drivers/i2c.c	\
+CFLAGS = \
+	-Iinclude \
+	$(CPUFLAGS) \
+	-std=gnu11 \
+	-ffreestanding \
+	-O0 \
+	-ggdb \
+	-Wall \
+	-Wextra \
+	-Wconversion \
+	-ffunction-sections \
+	-fdata-sections
 
-OBJS			= $(SRCS:.c=.o)
+LDFLAGS = \
+	$(CPUFLAGS) \
+	-Tlinker/main.ld \
+	-Wl,-Map=main.map \
+	-nostdlib
 
-all:	main.bin
+SRCS = \
+	startup/startup.c \
+	app/main.c \
+	drivers/adxl345.c \
+	drivers/i2c.c
+
+OBJS = $(SRCS:.c=.o)
+
+all: main.bin
 
 %.o: %.c
-	$(CC) $(CCFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@
 
 main.elf: $(OBJS)
-	$(LD) $(LDFALGS) $^ -o $@
+	$(CC) $(LDFLAGS) $(OBJS) -lgcc -o $@
 
-main.bin:	main.elf
+main.bin: main.elf
 	$(OBJCOPY) -O binary $< $@
 
 clean:
-	rm -rf $(OBJS) main.elf main.map main.bin
+	rm -f $(OBJS) main.elf main.map main.bin
 
-flash:
-	st-flash write main.bin 0x08000000 
+flash: main.bin
+	st-flash write main.bin 0x08000000
 
-.PHONY:	all, clean
+.PHONY: all clean flash
