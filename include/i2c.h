@@ -1,7 +1,7 @@
 #ifndef I2C_H
 #define I2C_H
 
-#include "stdint.h"
+#include <stdint.h>
 
 typedef enum {
   I2C_WRITE = 0,

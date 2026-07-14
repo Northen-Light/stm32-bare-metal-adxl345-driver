@@ -2,7 +2,7 @@
 #define ADXL345_H
 
 #include <stdbool.h>
-#include "stdint.h"
+#include <stdint.h>
 
 #define ADXL345_ADDRESS                     0x53U  
 #define ADXL345_DEVID                       0xE5
