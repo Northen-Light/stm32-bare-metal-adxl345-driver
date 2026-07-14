@@ -45,19 +45,19 @@ Connections
 ## Driver Architecture
 
 ```
-Application
-        │
-        ▼
-ADXL345 Driver
-        │
-        ▼
-I²C Driver
-        │
-        ▼
-STM32 I²C Peripheral
-        │
-        ▼
-ADXL345
+  Application
+          │
+          ▼
+  ADXL345 Driver
+          │
+          ▼
+  I²C Driver
+          │
+          ▼
+  STM32 I²C Peripheral
+          │
+          ▼
+  ADXL345
 ```
 
 The application never directly accesses device registers.
@@ -68,29 +68,29 @@ All register access is encapsulated inside the ADXL345 driver.
 ## Project Structure
 
 ```
-STM32-BARE-METAL-ADXL345-DRIVER
-│
-├── app/
-│   └── main.c
-│
-├── drivers/
-│   ├── adxl345.c
-│   └── i2c.c
-│
-├── include/
-│   ├── adxl345.h
-│   ├── i2c.h
-│   ├── stm32f103xx.h
-│   └── stdint.h
-│
-├── linker/
-|   └── main.ld
-│
-├── startup/
-|   └── startup.c
-│
-├── Makefile
-└── ...
+  STM32-BARE-METAL-ADXL345-DRIVER
+  │
+  ├── app/
+  │   └── main.c
+  │
+  ├── drivers/
+  │   ├── adxl345.c
+  │   └── i2c.c
+  │
+  ├── include/
+  │   ├── adxl345.h
+  │   ├── i2c.h
+  │   ├── stm32f103xx.h
+  │   └── stdint.h
+  │
+  ├── linker/
+  |   └── main.ld
+  │
+  ├── startup/
+  |   └── startup.c
+  │
+  ├── Makefile
+  └── ...
 ```
 
 ---
