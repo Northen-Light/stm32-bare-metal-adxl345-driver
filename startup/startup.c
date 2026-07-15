@@ -1,11 +1,11 @@
 extern int main(void);
 
 extern char _estack;
-extern char _end_rodata_;
-extern char _start_data_;
-extern char _end_data_;
-extern char _start_bss_;
-extern char _end_bss_;
+extern char _sidata;
+extern char _sdata;
+extern char _edata;
+extern char _sbss;
+extern char _ebss;
 
 void Reset_Handler(void);
 void HardFault_Handler(void);
@@ -19,16 +19,16 @@ char *vector_table[] = {
 };
 
 void Reset_Handler(void) {
-  char *start_data_src = &_end_rodata_;
-  char *start_data_dest = &_start_data_;
-  char *end_data_dest = &_end_data_;
+  char *start_data_src =  &_sidata;
+  char *start_data_dest = &_sdata;
+  char *end_data_dest = &_edata;
 
   while (start_data_dest != end_data_dest) {
     *start_data_dest++ = *start_data_src++;
   }
 
-  char *start_bss_dest = &_start_bss_;
-  char *end_bss_dest = &_end_bss_;
+  char *start_bss_dest = &_sbss;
+  char *end_bss_dest = &_ebss;
 
   while (start_bss_dest != end_bss_dest) {
     *start_bss_dest++ = 0;

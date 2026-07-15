@@ -21,7 +21,7 @@ CFLAGS = \
 LDFLAGS = \
 	$(CPUFLAGS) \
 	-Tlinker/main.ld \
-	-Wl,-Map=main.map \
+	-Wl,-Map=main.map,--gc-sections \
 	-nostdlib
 
 SRCS = \
