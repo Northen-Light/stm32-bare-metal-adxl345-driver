@@ -6,13 +6,15 @@ CPUFLAGS = -mcpu=cortex-m3 -mthumb
 CFLAGS = \
 	-Iinclude \
 	$(CPUFLAGS) \
-	-std=gnu11 \
+	-std=c11 \
 	-ffreestanding \
 	-O0 \
 	-ggdb \
 	-Wall \
 	-Wextra \
 	-Wconversion \
+	-Wshadow \
+  -Wundef \
 	-ffunction-sections \
 	-fdata-sections
 
