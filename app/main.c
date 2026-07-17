@@ -20,9 +20,9 @@ int main(void) {
     while(1);
   }
 
-  if (!adxl345_set_range(ADXL345_RANGE_4G) ||
-      !adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz) ||
-      !adxl345_set_data_ready_interrupt() ||
+  if (!adxl345_set_range(ADXL345_RANGE_4G)                                        ||
+      !adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz)                             ||
+      !adxl345_set_interrupt_bit(ADXL345_INTERRUPT_BIT_DATA_READY, ADXL345_INT2)  ||
       !adxl345_start_measurement()
     ) {
     /*

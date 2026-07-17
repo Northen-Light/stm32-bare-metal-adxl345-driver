@@ -130,23 +130,29 @@ bool adxl345_set_data_rate(adxl345_data_rate_t data_rate) {
   return true;
 }
 
-bool adxl345_set_data_ready_interrupt(void) {
-  uint8_t int_enable_reg = adxl345_read_register(ADXL345_REG_INT_ENABLE);
-  uint8_t int_map_reg = adxl345_read_register(ADXL345_REG_INT_MAP);
+bool adxl345_set_interrupt_bit(adxl345_interrupt_bit_t interrupt_bit, adxl345_interrupt_channel_t interrupt_channel) {
+  uint8_t interrupt_enable_reg = adxl345_read_register(ADXL345_REG_INTERRUPT_ENABLE);
+  uint8_t interrupt_map_reg = adxl345_read_register(ADXL345_REG_INTERRUPT_MAP);
 
-  int_enable_reg |= ADXL345_INT_DATA_READY_BIT;
-  int_map_reg &= ~ADXL345_INT_DATA_READY_BIT;
+  if (interrupt_channel == ADXL345_INT1)
+    interrupt_map_reg &= ~interrupt_bit;
+  else if (interrupt_channel == ADXL345_INT2)
+    interrupt_map_reg |= interrupt_bit;
+  else 
+    return false;
 
-  adxl345_write_register(ADXL345_REG_INT_ENABLE, int_enable_reg);
+  adxl345_write_register(ADXL345_REG_INTERRUPT_MAP, interrupt_map_reg);
 
-  if (!verify_register_value(ADXL345_REG_INT_ENABLE, int_enable_reg))
-    return false; 
-
-  adxl345_write_register(ADXL345_REG_INT_MAP, int_map_reg);
-
-  if (!verify_register_value(ADXL345_REG_INT_MAP, int_map_reg))
+  if (!verify_register_value(ADXL345_REG_INTERRUPT_MAP, interrupt_map_reg))
     return false;
   
+  interrupt_enable_reg |= interrupt_bit;
+
+  adxl345_write_register(ADXL345_REG_INTERRUPT_ENABLE, interrupt_enable_reg);
+
+  if (!verify_register_value(ADXL345_REG_INTERRUPT_ENABLE, interrupt_enable_reg))
+    return false; 
+
   return true;
 }
 
