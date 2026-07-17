@@ -17,6 +17,7 @@ int main(void) {
     /*
       Initialization error
     */
+    while(1);
   }
 
   if (!adxl345_set_range(ADXL345_RANGE_4G) ||
@@ -24,9 +25,10 @@ int main(void) {
       !adxl345_set_data_ready_interrupt() ||
       !adxl345_start_measurement()
     ) {
-      /*
-        Configuration error
-      */
+    /*
+      Configuration error
+    */
+    while(1);
   }
   
   while (1) {
