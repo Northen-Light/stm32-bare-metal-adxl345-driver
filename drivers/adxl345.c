@@ -131,6 +131,15 @@ bool adxl345_set_data_rate(adxl345_data_rate_t data_rate) {
   return true;
 }
 
+bool adxl345_set_data_ready_interrupt(void) {
+  adxl345_write_register(ADXL345_REG_INT_ENABLE, ADXL345_INT_DATA_READY_BIT);
+
+  if (!verify_register_value(ADXL345_REG_INT_ENABLE, ADXL345_INT_DATA_READY_BIT))
+    return false; 
+  
+  return true;
+}
+
 static uint8_t adxl345_read_register(uint8_t register_address) {
   return i2c1_read_regsiter(ADXL345_ADDRESS, register_address);
 }

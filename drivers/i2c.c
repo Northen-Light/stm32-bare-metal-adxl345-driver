@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "i2c.h"
 #include "stm32f103xx.h"
 
@@ -45,8 +46,14 @@ uint8_t i2c1_read_regsiter(uint8_t slave_address, uint8_t register_address) {
 }
 
 void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_t *buffer, uint32_t length) {
-  uint32_t remaining = length;
+  uint32_t remaining;
 
+  if ((length == NULL) || (length <= 2U)) {
+    return;
+  }
+
+  remaining = length;
+  
   i2c1_wait_bus_free();
   i2c1_start();
   i2c1_send_address(slave_address, I2C_WRITE);
@@ -57,6 +64,7 @@ void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_
   i2c1_start();
   i2c1_send_address(slave_address, I2C_READ);
   i2c1_clear_addr();
+  I2C1_CR1 |= (1U << 10U);
   
   while (remaining > 3U) {
     while (!(I2C1_SR1 & (1U << 6U)));

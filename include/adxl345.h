@@ -8,8 +8,10 @@
 #define ADXL345_DEVID                       0xE5
 
 #define ADXL345_REG_DEVID                   0x00U
-#define ADXL345_REG_DATA_RATE               0x2C
+#define ADXL345_REG_DATA_RATE               0x2CU
 #define ADXL345_REG_POWER_CTL               0x2DU
+#define ADXL345_REG_INT_ENABLE              0x2EU
+#define ADXL345_REG_INT_SOURCE              0x30
 #define ADXL345_REG_DATA_FORMAT             0x31U
 
 #define ADXL345_REG_DATAX0                  0x32U
@@ -21,6 +23,8 @@
 
 #define ADXL345_MEASURE_BIT                 (1U << 3U)
 #define ADXL345_FULL_RES_BIT                (1U << 3U)
+#define ADXL345_INT_DATA_READY_BIT          (1U << 7U)
+#define ADXL345_DATA_FORMAT_RESERVED_BIT    (1U << 4U)
 
 #define ADXL345_POWER_CTL_RESET             0x00U    
 
@@ -28,7 +32,6 @@
 #define ADXL345_DATA_RATE_MASK              0x0FU
 #define ADXL345_FULL_RES_MASK               (1U << 3U)
 #define ADXL345_DATA_RATE_RESERVED_MASK     ((1U << 6U) | (1U << 7U))
-#define ADXL345_DATA_FORMAT_RESERVED_BIT    (1U << 4U)
 
 #define ADXL345_SCALE_FACTOR                0.0039f
 
@@ -70,5 +73,6 @@ bool adxl345_start_measurement(void);
 bool adxl345_stop_measurement(void);
 bool adxl345_set_range(adxl345_range_t range);
 bool adxl345_set_data_rate(adxl345_data_rate_t rate);
+bool adxl345_set_data_ready_interrupt(void);
 
 #endif

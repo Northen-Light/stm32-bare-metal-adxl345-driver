@@ -1,3 +1,6 @@
+#include <stdint.h>
+#include <stdbool.h>
+#include "stm32f103xx.h"
 extern int main(void);
 
 extern char _estack;
@@ -7,15 +10,37 @@ extern char _edata;
 extern char _sbss;
 extern char _ebss;
 
+extern volatile bool data_ready;
+
 void Reset_Handler(void);
 void HardFault_Handler(void);
+void EXTI0_IRQHandler(void);
 
 __attribute__((section(".isr_vector")))
 char *vector_table[] = {
   &_estack,
   (char *)Reset_Handler,
   0,
-  (char *)HardFault_Handler
+  (char *)HardFault_Handler,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  (char *)EXTI0_IRQHandler
 };
 
 void Reset_Handler(void) {
@@ -39,4 +64,9 @@ void Reset_Handler(void) {
 
 void HardFault_Handler(void) {
   while(1);
+}
+
+void EXTI0_IRQHandler(void) {
+  EXTI0_PR = (1U << 0U);
+  data_ready = true;
 }
