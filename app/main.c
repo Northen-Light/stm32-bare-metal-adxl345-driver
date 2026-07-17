@@ -14,20 +14,16 @@ int main(void) {
   interrupt_init();
 
   if (!adxl345_init()) {
-    /*
-      Initialization error
-    */
+    /*  Initialization error */
     while(1);
   }
 
-  if (!adxl345_set_range(ADXL345_RANGE_4G)                                        ||
-      !adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz)                             ||
-      !adxl345_set_interrupt_bit(ADXL345_INTERRUPT_BIT_DATA_READY, ADXL345_INT2)  ||
+  if (!adxl345_set_range(ADXL345_RANGE_4G) ||
+      !adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz) ||
+      !adxl345_set_interrupt_bit(ADXL345_INTERRUPT_BIT_DATA_READY, ADXL345_INT2) ||
       !adxl345_start_measurement()
     ) {
-    /*
-      Configuration error
-    */
+    /* Configuration error */
     while(1);
   }
   
