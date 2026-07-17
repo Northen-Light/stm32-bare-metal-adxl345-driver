@@ -157,7 +157,7 @@ bool adxl345_set_interrupt_bit(adxl345_interrupt_bit_t interrupt_bit, adxl345_in
 }
 
 static uint8_t adxl345_read_register(uint8_t register_address) {
-  return i2c1_read_regsiter(ADXL345_ADDRESS, register_address);
+  return i2c1_read_register(ADXL345_ADDRESS, register_address);
 }
 
 static void adxl345_write_register(uint8_t register_address, uint8_t value) {

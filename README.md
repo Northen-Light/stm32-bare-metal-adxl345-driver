@@ -1,44 +1,65 @@
 # STM32 Bare-Metal ADXL345 Driver
 
-A register-level, bare-metal driver for the Analog Devices ADXL345 3-axis accelerometer written for the STM32F103 (Blue Pill).
+A register-level, bare-metal firmware driver for the Analog Devices ADXL345 3-axis accelerometer written for the STM32F103 (Blue Pill).
 
-This project implements both a generic I²C driver and a reusable ADXL345 device driver without using STM32 HAL or LL libraries.
+The project implements both a generic I²C driver and a reusable ADXL345 device driver without using STM32 HAL or LL libraries.
+
+The focus of the project is understanding the STM32F1 I²C peripheral, embedded driver architecture, and interrupt-driven sensor communication.
 
 ---
 
 ## Features
 
-- Bare-metal STM32F103 firmware
-- Register-level I²C driver
-- ADXL345 device driver
-- Device ID verification
-- Register read/write
+### I²C Driver
+
+- Register-level STM32F103 I²C implementation
+- Master transmit
+- Master receive
+- Single-byte register reads
 - Multi-byte burst reads
-- Raw X/Y/Z acceleration readings
-- Acceleration conversion to **g**
-- Configurable measurement range
-- Configurable output data rate
+- Repeated START support
+- ACK/NACK handling
+- Polling-based transfers
+
+### ADXL345 Driver
+
+- Device ID verification
+- Register read/write abstraction
+- Register write verification
 - Measurement mode control
-- Read-back verification after configuration writes
+- Configurable output data rate
+- Configurable measurement range
+- Raw acceleration readings
+- Acceleration conversion to g
+
+### Interrupt Support
+
+- DATA_READY interrupt
+- Configurable interrupt routing (INT1 / INT2)
+- EXTI configuration
+- NVIC interrupt handling
+- Interrupt-driven data acquisition
 
 ---
 
 ## Hardware
 
 - STM32F103C8T6 (Blue Pill)
-- ADXL345 3-Axis Accelerometer
-- I²C @ 100 kHz
+- ADXL345 Accelerometer
 
-Connections
+### I²C Connections
 
 | STM32 | ADXL345 |
-|-------|----------|
+|--------|----------|
 | PB6 | SCL |
 | PB7 | SDA |
+| PA0 | INT1 |
 | 3.3V | VCC |
 | GND | GND |
 | CS | 3.3V (I²C Mode) |
 | SDO | GND (Address = 0x53) |
+
+I²C Bus Speed: **100 kHz**
 
 ---
 
@@ -46,76 +67,64 @@ Connections
 
 ```
 Application
-        │
-        ▼
-ADXL345 Driver
-        │
-        ▼
-I²C Driver
-        │
-        ▼
-STM32 I²C Peripheral
-        │
-        ▼
-ADXL345
+      │
+      ▼
+ ADXL345 Driver
+      │
+      ▼
+    I²C Driver
+      │
+      ▼
+ STM32 I²C Peripheral
+      │
+      ▼
+    ADXL345
 ```
 
-The application never directly accesses device registers.
-All register access is encapsulated inside the ADXL345 driver.
+The application never accesses device registers directly.
+
+The ADXL345 driver is completely isolated from the STM32 peripheral implementation and communicates only through the I²C driver.
 
 ---
 
 ## Project Structure
 
 ```
-STM32-BARE-METAL-ADXL345-DRIVER
-│
+.
 ├── app/
-│   └── main.c
-│
 ├── drivers/
 │   ├── adxl345.c
 │   └── i2c.c
-│
 ├── include/
-│   ├── adxl345.h
-│   ├── i2c.h
-│   ├── stm32f103xx.h
-│   └── stdint.h
-│
 ├── linker/
-|   └── main.ld
-│
 ├── startup/
-|   └── startup.c
-│
 ├── Makefile
-└── ...
+├── README.md
+└── LEARNING.md
 ```
 
 ---
 
-## Public Driver API
+## Driver API
 
 ```c
 bool adxl345_init(void);
 
-uint8_t adxl345_read_device_id(void);
-
 bool adxl345_read_raw(adxl345_raw_data_t *data);
 
-bool adxl345_read_acceleration(
-    adxl345_acceleration_t *data);
-
-bool adxl345_set_range(
-    adxl345_range_t range);
-
-bool adxl345_set_data_rate(
-    adxl345_data_rate_t rate);
+bool adxl345_read_acceleration(adxl345_acceleration_t *data);
 
 bool adxl345_start_measurement(void);
 
 bool adxl345_stop_measurement(void);
+
+bool adxl345_set_range(adxl345_range_t range);
+
+bool adxl345_set_data_rate(adxl345_data_rate_t rate);
+
+bool adxl345_set_interrupt_bit(
+    adxl345_interrupt_bit_t interrupt,
+    adxl345_interrupt_channel_t channel);
 ```
 
 ---
@@ -127,131 +136,103 @@ Read Device ID
 
 ↓
 
-Enter Standby
+Enter Standby Mode
 
 ↓
 
-Configure FULL_RES
+Configure DATA_FORMAT
 
 ↓
 
-Configure ±2 g Range
+Configure Output Data Rate
 
 ↓
 
-Configure 100 Hz Output Data Rate
+Initialization Complete
+```
 
-↓
+Measurement mode is enabled separately by calling:
 
-Enter Measurement Mode
+```c
+adxl345_start_measurement();
 ```
 
 ---
 
-## Burst Read
-
-The driver reads all three axes using a single I²C burst transaction.
+## Interrupt Flow
 
 ```
-START
+ADXL345
 
 ↓
 
-0x53 + Write
+DATA_READY
 
 ↓
 
-DATAX0
+INT1
 
 ↓
 
-Repeated START
+PA0
 
 ↓
 
-0x53 + Read
+EXTI0
 
 ↓
 
-DATAX0
-DATAX1
-DATAY0
-DATAY1
-DATAZ0
-DATAZ1
+NVIC
 
 ↓
 
-STOP
+ISR
+
+↓
+
+Application reads acceleration
 ```
 
 ---
 
-## Example
+## I²C Read Sequence
 
-Raw acceleration:
+The STM32F1 I²C peripheral is implemented using the polling state machine described in RM0008.
 
-```
-x = 262
-y = 7
-z = 45
-```
+Implemented sequences include:
 
-Converted acceleration:
-
-```
-x = 1.02 g
-y = 0.03 g
-z = 0.18 g
-```
+- START generation
+- Address phase
+- Register addressing
+- Repeated START
+- Single-byte receive
+- Multi-byte receive
+- ACK/NACK management
+- STOP generation
 
 ---
 
-## Building
+## Build
 
-```
+```bash
 make
 ```
 
 Flash
 
-```
+```bash
 make flash
 ```
 
 ---
 
-## Development & Debugging Tools
+## Development Tools
 
 - arm-none-eabi-gcc
 - GNU Make
 - arm-none-eabi-gdb
 - st-util
 - ST-Link V2
-
----
-
-## Development workflow
-
-```
-arm-none-eabi-gcc
-        │
-        ▼
-     main.elf
-        │
-        ▼
-arm-none-eabi-gdb
-        │
-        ▼
-      st-util
-        │
-        ▼
-     ST-Link V2
-        │
-        ▼
-   STM32F103 (SWD)
-
-```
 
 ---
 

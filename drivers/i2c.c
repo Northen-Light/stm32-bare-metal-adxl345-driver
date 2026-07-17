@@ -27,7 +27,7 @@ void i2c1_init(void) {
   I2C1_CR1 |= (1U << 0U);
 }
 
-uint8_t i2c1_read_regsiter(uint8_t slave_address, uint8_t register_address) {
+uint8_t i2c1_read_register(uint8_t slave_address, uint8_t register_address) {
   i2c1_wait_bus_free();
   i2c1_start();
   i2c1_send_address(slave_address, I2C_WRITE);
