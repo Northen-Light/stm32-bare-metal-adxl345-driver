@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <stdbool.h>
 #include "i2c.h"
 #include "adxl345.h"
