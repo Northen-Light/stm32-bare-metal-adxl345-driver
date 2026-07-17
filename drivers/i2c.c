@@ -48,9 +48,8 @@ uint8_t i2c1_read_regsiter(uint8_t slave_address, uint8_t register_address) {
 void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_t *buffer, uint32_t length) {
   uint32_t remaining;
 
-  if ((length == NULL) || (length <= 2U)) {
+  if ((length == NULL) || (length <= 2U))
     return;
-  }
 
   remaining = length;
   

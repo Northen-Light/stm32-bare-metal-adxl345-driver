@@ -171,9 +171,8 @@ static void adxl345_read_registers(uint8_t register_address, uint8_t *buffer, ui
 static bool verify_register_value(uint8_t register_address, uint8_t expected_value) {
   uint8_t register_value = adxl345_read_register(register_address);
   
-  if (register_value != expected_value) {
+  if (register_value != expected_value)
     return false;
-  }
 
   return true;
 }
