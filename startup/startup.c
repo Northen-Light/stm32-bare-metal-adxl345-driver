@@ -1,5 +1,5 @@
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "stm32f103xx.h"
 extern int main(void);
 
@@ -16,31 +16,31 @@ void Reset_Handler(void);
 void HardFault_Handler(void);
 void EXTI0_IRQHandler(void);
 
-__attribute__((section(".isr_vector")))
-char *vector_table[] = {
-  &_estack,
-  (char *)Reset_Handler,
-  0,
-  (char *)HardFault_Handler,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  (char *)EXTI0_IRQHandler
+__attribute__((used, section(".isr_vector")))
+uintptr_t vector_table[] = {
+  (uintptr_t) &_estack,
+  (uintptr_t) Reset_Handler,
+  0U,
+  (uintptr_t) HardFault_Handler,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  0U,
+  (uintptr_t) EXTI0_IRQHandler
 };
 
 void Reset_Handler(void) {
@@ -60,6 +60,8 @@ void Reset_Handler(void) {
   }
 
   main();
+
+  while(1);
 }
 
 void HardFault_Handler(void) {

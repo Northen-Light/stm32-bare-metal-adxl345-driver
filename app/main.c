@@ -12,12 +12,22 @@ volatile bool data_ready = false;
 int main(void) {
   i2c1_init();
   interrupt_init();
-  adxl345_init();
 
-  adxl345_set_range(ADXL345_RANGE_4G);
-  adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz);
-  adxl345_set_data_ready_interrupt();
-  adxl345_start_measurement();
+  if (!adxl345_init()) {
+    /*
+      Initialization error
+    */
+  }
+
+  if (!adxl345_set_range(ADXL345_RANGE_4G) ||
+      !adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz) ||
+      !adxl345_set_data_ready_interrupt() ||
+      !adxl345_start_measurement()
+    ) {
+      /*
+        Configuration error
+      */
+  }
   
   while (1) {
     if (data_ready) {

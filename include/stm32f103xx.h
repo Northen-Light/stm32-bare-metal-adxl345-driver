@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define RCC_APB2ENR       *((volatile uint32_t *) 0x40021018U)
 #define RCC_APB1ENR       *((volatile uint32_t *) 0x4002101CU)
 
