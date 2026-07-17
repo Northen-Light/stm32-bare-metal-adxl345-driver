@@ -11,6 +11,7 @@
 #define ADXL345_REG_DATA_RATE               0x2CU
 #define ADXL345_REG_POWER_CTL               0x2DU
 #define ADXL345_REG_INT_ENABLE              0x2EU
+#define ADXL345_REG_INT_MAP                 0x2FU
 #define ADXL345_REG_INT_SOURCE              0x30U
 #define ADXL345_REG_DATA_FORMAT             0x31U
 

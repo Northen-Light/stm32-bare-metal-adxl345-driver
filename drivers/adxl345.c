@@ -87,9 +87,13 @@ bool adxl345_start_measurement(void) {
 }
 
 bool adxl345_stop_measurement(void) {
-  adxl345_write_register(ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_RESET);
-  
-  if (!verify_register_value(ADXL345_REG_POWER_CTL, ADXL345_POWER_CTL_RESET))
+  uint8_t power_ctl_reg;
+
+  power_ctl_reg = adxl345_read_register(ADXL345_REG_POWER_CTL);
+  power_ctl_reg &= ~ADXL345_MEASURE_BIT;
+  adxl345_write_register(ADXL345_REG_POWER_CTL, power_ctl_reg);
+
+  if (!verify_register_value(ADXL345_REG_POWER_CTL, power_ctl_reg))
     return false;
 
   return true;
@@ -132,10 +136,21 @@ bool adxl345_set_data_rate(adxl345_data_rate_t data_rate) {
 }
 
 bool adxl345_set_data_ready_interrupt(void) {
-  adxl345_write_register(ADXL345_REG_INT_ENABLE, ADXL345_INT_DATA_READY_BIT);
+  uint8_t int_enable_reg = adxl345_read_register(ADXL345_REG_INT_ENABLE);
+  uint8_t int_map_reg = adxl345_read_register(ADXL345_REG_INT_MAP);
 
-  if (!verify_register_value(ADXL345_REG_INT_ENABLE, ADXL345_INT_DATA_READY_BIT))
+  int_enable_reg |= ADXL345_INT_DATA_READY_BIT;
+  int_map_reg &= ~ADXL345_INT_DATA_READY_BIT;
+
+  adxl345_write_register(ADXL345_REG_INT_ENABLE, int_enable_reg);
+
+  if (!verify_register_value(ADXL345_REG_INT_ENABLE, int_enable_reg))
     return false; 
+
+  adxl345_write_register(ADXL345_REG_INT_MAP, int_map_reg);
+
+  if (!verify_register_value(ADXL345_REG_INT_MAP, int_map_reg))
+    return false;
   
   return true;
 }
