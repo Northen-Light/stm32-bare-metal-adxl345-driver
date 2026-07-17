@@ -31,11 +31,6 @@ bool adxl345_init(void) {
   if (!verify_register_value(ADXL345_REG_DATA_RATE, ADXL345_DATA_RATE_100Hz))
     return false;
 
-  adxl345_write_register(ADXL345_REG_POWER_CTL, ADXL345_MEASURE_BIT);
-
-  if (!verify_register_value(ADXL345_REG_POWER_CTL, ADXL345_MEASURE_BIT))
-    return false;
-
   return true;
 }
 

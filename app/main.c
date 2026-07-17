@@ -14,7 +14,6 @@ int main(void) {
   interrupt_init();
   adxl345_init();
 
-  adxl345_stop_measurement();
   adxl345_set_range(ADXL345_RANGE_4G);
   adxl345_set_data_rate(ADXL345_DATA_RATE_200Hz);
   adxl345_set_data_ready_interrupt();
