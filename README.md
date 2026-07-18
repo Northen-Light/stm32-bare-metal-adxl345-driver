@@ -102,6 +102,14 @@ make flash
 
 ---
 
+## Clean
+
+```bash
+make clean
+```
+
+---
+
 ## Development tools
 
 - arm-none-eabi-gcc
