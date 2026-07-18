@@ -1,86 +1,69 @@
 # STM32 Bare-Metal ADXL345 Driver
 
-A bare-metal driver for the Analog Devices ADXL345 3-axis accelerometer, written for the STM32F103C8T6 Blue Pill.
+A bare-metal ADXL345 accelerometer driver for the STM32F103 written in C using register-level programming.
 
-## Highlights
+This project interfaces an STM32F103 microcontroller with an Analog Devices ADXL345 3-axis accelerometer over I²C. It supports sensor configuration, interrupt configuration, measurement control, raw and converted acceleration readings and data-ready interrupt handling.
 
-- Built entirely without STM32 HAL or LL
-- Developed and validated on STM32F103 hardware
-- Implements STM32F1 I²C state machine using polling
-- Supports interrupt-driven data acquisition
-- Uses a layered driver architecture
+---
 
 ## Features
 
-### STM32 I²C driver
+### STM32 I²C Driver
 
-- Register-level STM32F103 I²C implementation
+- Bare-metal I²C1 driver
+- Register-level STM32F103 programming
 - Single-byte register writes
 - Single-byte register reads
 - Multi-byte burst register reads
-- Repeated START generation for register reads
+- Repeated START generation
 - ACK/NACK handling
-- Polling-based STM32 I²C state-machine handling using `SB`, `ADDR`, `TXE`, `RXNE`, and `BTF`
+- Polling-based STM32 I²C state machine
 
-### ADXL345 driver
+### ADXL345 Driver
 
 - Device ID verification
-- Configurable measurement range
-- Configurable output data rate
-- Raw X/Y/Z acceleration reads
-- Conversion from raw samples to acceleration in `g`
-- Explicit start and stop measurement control
-- Configurable interrupt enable
-- Interrupt routing to `INT1` or `INT2`
-- Encapsulated ADXL345 register access
-- Read-back verification after configuration writes
+- Measurement range configuration
+- Output data rate configuration
+- Raw acceleration reads
+- Acceleration conversion to `g`
+- Start/Stop measurement
+- Interrupt configuration
+- Interrupt routing (INT1 / INT2)
+- Register read-back verification
+- Modular driver architecture
 
-### Interrupt-driven data acquisition
+### Interrupt Support
 
-- ADXL345 DATA_READY interrupt configuration
-- Interrupt routing to INT1 or INT2
-- STM32 AFIO, EXTI, and NVIC configuration
-- Minimal interrupt service routine
-- Acceleration reads performed in the main loop
+- DATA_READY interrupt
+- STM32 EXTI and NVIC configuration
+- Interrupt-driven data acquisition
 
-## Hardware
+---
+
+## Hardware Used
 
 - STM32F103C8T6 Blue Pill
 - ADXL345 accelerometer module
 - ST-Link V2
-- I²C bus configured for 100 kHz
+- Breadboard and jumper wires
 
-## Connections
+---
 
-| STM32F103 | ADXL345 | Purpose |
-|---|---|---|
-| PB6 | SCL | I²C clock |
-| PB7 | SDA | I²C data |
-| PA0 | INT1 | Data-ready interrupt |
-| 3.3 V | VCC | Power |
+## Pin Connections
+
+| STM32F103 | ADXL345 | Description |
+|------------|----------|-------------|
+| PB6 | SCL | I²C Clock |
+| PB7 | SDA | I²C Data |
+| PA0 | INT1 | Data Ready Interrupt |
+| 3.3V | VCC | Power |
 | GND | GND | Ground |
+| 3.3V | CS | Select I²C Mode |
+| GND | SDO | I²C Address = 0x53 |
 
-## Software architecture
+---
 
-```text
-Application
-    |
-    v
-ADXL345 driver
-    |
-    v
-STM32 I²C driver
-    |
-    v
-STM32F103 I²C peripheral
-    |
-    v
-ADXL345
-```
-
-The application communicates with the sensor through the public ADXL345 API. It does not access ADXL345 registers directly.
-
-## Project structure
+## Project Structure
 
 ```text
 .
@@ -101,52 +84,7 @@ The application communicates with the sensor through the public ADXL345 API. It 
 └── README.md
 ```
 
-## Initialization
-
-`adxl345_init()`:
-
-- Verifies the device ID
-- Places the sensor in standby mode
-- Enables full-resolution mode
-- Configures the measurement range
-- Configures the output data rate
-
-Measurement is started explicitly using:
-
-```c
-adxl345_start_measurement();
-```
-
-## Public API
-
-The driver provides functions to:
-
-- Initialize the sensor
-- Read raw acceleration
-- Read acceleration in `g`
-- Configure measurement range
-- Configure output data rate
-- Start/stop measurement
-- Interrupt enable and configure interrupt routing
-
-## Register-read transaction
-
-A register read uses a repeated START:
-
-```text
-START → Address+Write → Register → Repeated START → Address+Read → Data → STOP
-```
-
-The acceleration-read function retrieves `DATAX0` through `DATAZ1` in one six-byte burst transaction.
-
-## Interrupt flow
-
-```text
-DATA_READY → PA0 → EXTI0 → NVIC → ISR → Main loop
-```
-
-The blocking I²C transaction is intentionally kept outside the interrupt handler.
-
+---
 
 ## Build
 
@@ -154,36 +92,26 @@ The blocking I²C transaction is intentionally kept outside the interrupt handle
 make
 ```
 
+---
+
 ## Flash
 
 ```bash
 make flash
 ```
 
-## Development tools
-
-- arm-none-eabi-gcc
-- gdb
-- GNU Make
-- st-util
-- ST-Link V2
-
-## Current Limitations
-
-- Polling-based I²C driver
-- No timeout or error recovery
-- No DMA or interrupt-driven I²C
-- ADXL345 FIFO not implemented
+---
 
 ## Future Improvements
 
-- Add I²C timeout and error handling
-- Add ADXL345 FIFO support
-- Implement activity/tap detection
-- Capture and document bus timing using a logic analyzer
+- ADXL345 FIFO support
+- I²C timeout and error handling
+- Activity/Tap detection
+
+---
 
 ## References
 
-- STM32F103 Reference Manual, RM0008
-- STM32F103 datasheet
-- Analog Devices ADXL345 datasheet
+- STM32F103 Reference Manual (RM0008)
+- STM32F103 Datasheet
+- ADXL345 Datasheet
