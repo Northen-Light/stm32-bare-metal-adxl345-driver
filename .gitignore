@@ -5,3 +5,4 @@
 *.map
 *.o
 *.bin
+logic-analyser/*.sr
