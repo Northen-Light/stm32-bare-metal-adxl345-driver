@@ -2,7 +2,7 @@
 
 A bare-metal ADXL345 accelerometer driver for the STM32F103 written in C using register-level programming.
 
-This project interfaces an STM32F103 microcontroller with an Analog Devices ADXL345 3-axis accelerometer over I²C. It supports sensor configuration, interrupt configuration, measurement control, raw and converted acceleration readings and data-ready interrupt handling.
+This project interfaces an STM32F103 microcontroller with the Analog Devices ADXL345 3-axis accelerometer over I²C. It implements a custom STM32F103 I²C driver together with a reusable ADXL345 device driver supporting sensor configuration, measurement control, raw and converted acceleration readings, and data-ready interrupt handling.
 
 ---
 
@@ -34,7 +34,7 @@ This project interfaces an STM32F103 microcontroller with an Analog Devices ADXL
 
 ### Interrupt Support
 
-- DATA_READY interrupt
+- ADXL345 DATA_READY interrupt
 - STM32 EXTI and NVIC configuration
 - Interrupt-driven data acquisition
 
@@ -132,4 +132,4 @@ make clean
 
 - STM32F103 Reference Manual (RM0008)
 - STM32F103 Datasheet
-- ADXL345 Datasheet
+- Analog Devices ADXL345 Datasheet
