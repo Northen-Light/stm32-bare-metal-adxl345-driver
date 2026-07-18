@@ -35,13 +35,13 @@ A bare-metal driver for the Analog Devices ADXL345 3-axis accelerometer, written
 - Encapsulated ADXL345 register access
 - Read-back verification after configuration writes
 
-### Interrupt-driven acquisition
+### Interrupt-driven data acquisition
 
-- ADXL345 `DATA_READY` interrupt support
-- STM32 AFIO and EXTI configuration
-- NVIC interrupt handling
+- ADXL345 DATA_READY interrupt configuration
+- Interrupt routing to INT1 or INT2
+- STM32 AFIO, EXTI, and NVIC configuration
 - Minimal interrupt service routine
-- Acceleration reads performed from the main loop
+- Acceleration reads performed in the main loop
 
 ## Hardware
 
