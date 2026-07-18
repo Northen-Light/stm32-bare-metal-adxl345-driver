@@ -98,8 +98,7 @@ The application communicates with the sensor through the public ADXL345 API. It 
 ├── startup/
 │   └── startup.c
 ├── Makefile
-├── README.md
-└── DESIGN.md
+└── README.md
 ```
 
 ## Initialization
