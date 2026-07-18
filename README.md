@@ -102,6 +102,16 @@ make flash
 
 ---
 
+## Development tools
+
+- arm-none-eabi-gcc
+- gdb
+- GNU Make
+- st-util
+- ST-Link V2
+
+---
+
 ## Future Improvements
 
 - ADXL345 FIFO support
