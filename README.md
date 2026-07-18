@@ -108,8 +108,8 @@ The application communicates with the sensor through the public ADXL345 API. It 
 
 - Verifies the device ID
 - Places the sensor in standby mode
-- Configures the measurement range
 - Enables full-resolution mode
+- Configures the measurement range
 - Configures the output data rate
 
 Measurement is started explicitly using:
@@ -128,7 +128,7 @@ The driver provides functions to:
 - Configure measurement range
 - Configure output data rate
 - Start/stop measurement
-- Configure interrupt routing
+- Interrupt enable and configure interrupt routing
 
 ## Register-read transaction
 
@@ -169,26 +169,19 @@ make flash
 - st-util
 - ST-Link V2
 
-## Current limitations
+## Current Limitations
 
-- I²C operations use polling
-- No timeout handling
-- No detailed I²C error reporting
-- No bus-recovery logic
-- No interrupt- or DMA-driven I²C transfers
-- ADXL345 FIFO is not used
-- A Boolean data-ready flag may combine multiple pending samples into one event
+- Polling-based I²C driver
+- No timeout or error recovery
+- No DMA or interrupt-driven I²C
+- ADXL345 FIFO not implemented
 
-## Future improvements
+## Future Improvements
 
-- Add polling timeouts
-- Add detailed I²C error codes
-- Handle address NACK, bus error, arbitration loss, and overrun
-- Add I²C bus recovery
+- Add I²C timeout and error handling
 - Add ADXL345 FIFO support
-- Add FIFO watermark interrupt support
-- Add activity, inactivity, tap, and double-tap detection
-- Capture and document I²C and interrupt timing using a logic analyzer
+- Implement activity/tap detection
+- Capture and document bus timing using a logic analyzer
 
 ## References
 
