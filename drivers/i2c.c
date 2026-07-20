@@ -9,6 +9,9 @@ static void i2c1_clear_addr(void);
 static void i2c1_write_byte(uint8_t data);
 static void i2c1_wait_for_BTF(void);
 static void i2c1_stop(void);
+static void i2c1_wait_for_RXNE(void);
+static void i2c1_set_ACK(void);
+static void i2c1_set_NACK(void);
 
 void i2c1_init(void) {
   RCC_APB2ENR |= (1U << 3U);
@@ -33,22 +36,21 @@ uint8_t i2c1_read_register(uint8_t slave_address, uint8_t register_address) {
   i2c1_send_address(slave_address, I2C_WRITE);
   i2c1_clear_addr();
   i2c1_write_byte(register_address);
-  i2c1_wait_for_BTF();
 
   i2c1_start();
   i2c1_send_address(slave_address, I2C_READ);
-  I2C1_CR1 &= ~(1U << 10U);
+  i2c1_set_NACK();
   i2c1_clear_addr();
   i2c1_stop();
-  while (!(I2C1_SR1 & (1U << 6U)));
-  I2C1_CR1 |= (1U << 10U);
+  i2c1_wait_for_RXNE();
+  i2c1_set_ACK();
   return I2C1_DR;
 }
 
 void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_t *buffer, uint32_t length) {
   uint32_t remaining;
 
-  if ((length == NULL) || (length <= 2U))
+  if (length < 2U)
     return;
 
   remaining = length;
@@ -58,33 +60,23 @@ void i2c1_read_registers(uint8_t slave_address, uint8_t register_address, uint8_
   i2c1_send_address(slave_address, I2C_WRITE);
   i2c1_clear_addr();
   i2c1_write_byte(register_address);
-  i2c1_wait_for_BTF();
 
   i2c1_start();
   i2c1_send_address(slave_address, I2C_READ);
   i2c1_clear_addr();
-  I2C1_CR1 |= (1U << 10U);
+  i2c1_set_ACK();
   
-  while (remaining > 3U) {
-    while (!(I2C1_SR1 & (1U << 6U)));
+  while (remaining > 0U) {
+    i2c1_wait_for_RXNE();
     *buffer++ = I2C1_DR;
+    if (remaining == 2U) {
+      i2c1_set_NACK();
+      i2c1_stop();
+    }
     remaining--;
   }
 
-  i2c1_wait_for_BTF();
-  I2C1_CR1 &= ~(1U << 10U);
-  *buffer++ = I2C1_DR;
-  remaining--;
-
-  i2c1_stop();
-  
-  while (remaining > 0) {
-    while (!(I2C1_SR1 & (1U << 6U)));
-    *buffer++ = I2C1_DR;
-    remaining--;
-  }
-  
-  I2C1_CR1 |= (1U << 10U);
+  i2c1_set_ACK();
 }
 
 void i2c1_write_register(uint8_t slave_address, uint8_t register_address, uint8_t value) {
@@ -128,4 +120,16 @@ static void i2c1_wait_for_BTF(void) {
 
 static void i2c1_stop(void) {
   I2C1_CR1 |= (1U << 9U);
+}
+
+static void i2c1_wait_for_RXNE(void) {
+  while (!(I2C1_SR1 & (1U << 6U)));
+}
+
+static void i2c1_set_ACK(void) {
+  I2C1_CR1 |= (1U << 10U);
+}
+
+static void i2c1_set_NACK(void) {
+  I2C1_CR1 &= ~(1U << 10U);
 }
