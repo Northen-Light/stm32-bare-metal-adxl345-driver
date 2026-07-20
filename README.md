@@ -128,6 +128,51 @@ make clean
 
 ---
 
+---
+
+## Logic Analyzer Verification
+
+The I²C driver was validated on real hardware using a 24 MHz USB logic analyzer.
+
+### Single-byte register read
+
+Verifies:
+
+- START and repeated START generation
+- Device addressing
+- Register address transmission
+- ACK/NACK sequencing
+- Reading the ADXL345 `DEVID` register (`0xE5`)
+
+![Single-byte register read](docs/images/i2c-single-byte-register-read.png)
+
+---
+
+### Multi-byte burst read
+
+Verifies:
+
+- Burst reads from consecutive registers
+- ACK after intermediate bytes
+- NACK on the final byte
+- STOP generation after the final byte
+
+![Multi-byte burst read](docs/images/i2c-multi-byte-register-read.png)
+
+---
+
+### Single-byte register write
+
+Verifies:
+
+- Device and register addressing
+- Register write transaction
+- Data transmission
+- ACK sequencing
+- STOP generation
+
+![Single-byte register write](docs/images/i2c-single-byte-register-write.png)
+
 ## References
 
 - STM32F103 Reference Manual (RM0008)

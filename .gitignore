@@ -5,4 +5,5 @@
 *.map
 *.o
 *.bin
-logic-analyser/*.sr
+docs/*.sr
+docs/*.pvs
