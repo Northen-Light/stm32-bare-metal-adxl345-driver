@@ -117,16 +117,7 @@ make clean
 - GNU Make
 - st-util
 - ST-Link V2
-
----
-
-## Future Improvements
-
-- ADXL345 FIFO support
-- I²C timeout and error handling
-- Activity/Tap detection
-
----
+- USB Logic Analyzer (24 MHz, 8-channel)
 
 ---
 
@@ -172,6 +163,16 @@ Verifies:
 - STOP generation
 
 ![Single-byte register write](docs/images/i2c-single-byte-register-write.png)
+
+---
+
+## Future Improvements
+
+- ADXL345 FIFO support
+- I²C timeout and error handling
+- Activity/Tap detection
+
+---
 
 ## References
 
