@@ -55,7 +55,7 @@ This project interfaces an STM32F103 microcontroller with the Analog Devices ADX
 |------------|----------|-------------|
 | PB6 | SCL | I²C Clock |
 | PB7 | SDA | I²C Data |
-| PA0 | INT1 | Data Ready Interrupt |
+| PA0 | INT2 | Data Ready Interrupt |
 | 3.3V | VCC | Power |
 | GND | GND | Ground |
 | 3.3V | CS | Select I²C Mode |
