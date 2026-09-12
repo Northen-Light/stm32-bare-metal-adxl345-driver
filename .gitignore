@@ -7,3 +7,4 @@
 *.bin
 docs/*.sr
 docs/*.pvs
+build
