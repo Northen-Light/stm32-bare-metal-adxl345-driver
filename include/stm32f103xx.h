@@ -28,9 +28,9 @@
 #define I2C1_CR1_RESET                        0
 #define I2C1_CR2_FREQ_MASK                    (0x3FU << 0)
 #define I2C1_CR2_FREQ_PCLK1_8MHZ              (0x8U << 0)
-#define I2C_CCR_MASK                          (0xFFFU << 0)
+#define I2C_CCR_RESET                         0
 #define I2C_CCR_SM_100KHZ                     (0x28U << 0)
-#define I2C1_TRISE_FREQ_MASK                  (0x3FU << 0)
+#define I2C1_TRISE_RESET                      0
 #define I2C1_TRISE_1000_NS                    (0x9U << 0)  
 #define I2C1_CR1_PE                           (1U << 0) 
 #define I2C1_CR1_START                        (1U << 8)    

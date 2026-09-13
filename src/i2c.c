@@ -27,9 +27,9 @@ void i2c1_init(void) {
   I2C1_CR1 = I2C1_CR1_RESET;
   I2C1_CR2 &= ~I2C1_CR2_FREQ_MASK;
   I2C1_CR2 |= I2C1_CR2_FREQ_PCLK1_8MHZ;
-  I2C_CCR &= ~I2C_CCR_MASK;
+  I2C_CCR = I2C_CCR_RESET;
   I2C_CCR |= I2C_CCR_SM_100KHZ;
-  I2C_TRISE &= ~I2C1_TRISE_FREQ_MASK;
+  I2C_TRISE = I2C1_TRISE_RESET;
   I2C_TRISE |= I2C1_TRISE_1000_NS;
 
   I2C1_CR1 |= I2C1_CR1_PE;
@@ -55,7 +55,7 @@ void i2c1_slave_single_byte_read(uint8_t slave_address, uint8_t register_address
 }
 
 void i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *bytes, uint8_t length) {
-  if (length < 2) {
+  if (length < 3) {
     return;
   }
 
@@ -73,7 +73,7 @@ void i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address,
   i2c1_send_address(slave_address, 1);
   i2c1_clear_addr();
 
-  while(idx < length - 2) {
+  while(idx < length - 3) {
     i2c1_read_byte(&bytes[idx++]);
   }
 
@@ -86,9 +86,9 @@ void i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address,
   i2c1_read_byte(&bytes[idx++]);
 }
 
-void i2c1_slave_single_byte_write(uint8_t slave_addess, uint8_t register_address, uint8_t byte) {
+void i2c1_slave_single_byte_write(uint8_t slave_address, uint8_t register_address, uint8_t byte) {
   i2c1_start();
-  i2c1_send_address(slave_addess, 0);
+  i2c1_send_address(slave_address, 0);
   i2c1_clear_addr();
   i2c1_write_byte(register_address);
   i2c1_write_byte(byte);

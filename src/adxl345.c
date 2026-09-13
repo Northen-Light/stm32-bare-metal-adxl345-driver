@@ -22,9 +22,9 @@ void adxl345_set_power_ctl(uint8_t power_ctl) {
   adxl345_single_byte_write(ADXL345_REGISTER_POWER_CTL, power_ctl);
 }
 
-void adxl345_read_accleration(accleration_t *accleration) {
+void adxl345_read_accleration(accleration_t *acceleration) {
+  uint8_t raw_accleration[6];
   uint8_t length = 6;
-  uint8_t raw_accleration[length];
   float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
   uint8_t data_format;
   uint8_t range_bits;
@@ -53,9 +53,9 @@ void adxl345_read_accleration(accleration_t *accleration) {
   }
   
 
-  accleration -> x = ((int16_t)((uint16_t)(raw_accleration[1] << 8) | raw_accleration[0]) * scale_factor) / 1000.0f;
-  accleration -> y = ((int16_t)((uint16_t)(raw_accleration[3] << 8) | raw_accleration[2]) * scale_factor) / 1000.0f;
-  accleration -> z = ((int16_t)((uint16_t)(raw_accleration[5] << 8) | raw_accleration[4]) * scale_factor) / 1000.0f;
+  acceleration -> x = ((int16_t)((uint16_t)(raw_accleration[1] << 8) | raw_accleration[0]) * scale_factor) / 1000.0f;
+  acceleration -> y = ((int16_t)((uint16_t)(raw_accleration[3] << 8) | raw_accleration[2]) * scale_factor) / 1000.0f;
+  acceleration -> z = ((int16_t)((uint16_t)(raw_accleration[5] << 8) | raw_accleration[4]) * scale_factor) / 1000.0f;
 }
 
 static void adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {

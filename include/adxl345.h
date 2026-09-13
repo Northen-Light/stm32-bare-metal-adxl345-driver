@@ -13,14 +13,13 @@ void adxl345_read_device_id(uint8_t *byte);
 void adxl345_set_data_format(uint8_t data_format);
 void adxl345_set_bw_rate(uint8_t bw_rate);
 void adxl345_set_power_ctl(uint8_t power_ctl);
-void adxl345_read_accleration(accleration_t *accleration);
+void adxl345_read_accleration(accleration_t *acceleration);
 
 
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G                   (0x0U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_4G                   (0x1U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_8G                   (0x2U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_16G                  (0x3U << 0)
-#define ADXL345_REGISTER_DATA_FORMAT_JUSTIFY_BIT                     (1U << 2)
 #define ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT                    (1U << 3)
 #define ADXL345_REGISTER_DATA_FORMAT_INT_INVERT_BIT                  (1U << 5)
 #define ADXL345_REGISTER_DATA_FORMAT_SELF_TEST_BIT                   (1U << 7)
