@@ -2,6 +2,8 @@
 #include "adxl345_internal.h"
 #include "i2c.h"
 
+float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
+
 static void adxl345_single_byte_read(uint8_t register_address, uint8_t *byte);
 static void adxl345_single_byte_write(uint8_t register_address, uint8_t byte);
 static void adxl345_multi_byte_read(uint8_t register_address, uint8_t *bytes, uint8_t length);
@@ -11,7 +13,33 @@ void adxl345_read_device_id(uint8_t *byte) {
 }
 
 void adxl345_set_data_format(uint8_t data_format) {
+  uint8_t range_bits;
+  uint8_t data_format_value;
+
   adxl345_single_byte_write(ADXL345_REGISTER_DATA_FORMAT, data_format);
+
+  adxl345_single_byte_read(ADXL345_REGISTER_DATA_FORMAT, &data_format_value);
+
+  if ((data_format_value & ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT) == 0) {
+    range_bits = data_format & ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_MASK;
+
+    switch (range_bits) {
+      case 0 : 
+        scale_factor = ADXL345_SCALE_FACTOR_2G_10BIT_RES;
+        return;
+      case 1 : 
+        scale_factor = ADXL345_SCALE_FACTOR_4G_10BIT_RES;
+        return;
+      case 2 : 
+        scale_factor = ADXL345_SCALE_FACTOR_8G_10BIT_RES;
+        return;
+      case 3 : 
+        scale_factor = ADXL345_SCALE_FACTOR_16G_10BIT_RES;
+        return;
+    }
+  } 
+
+  scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
 }
 
 void adxl345_set_bw_rate(uint8_t bw_rate) {
@@ -25,33 +53,8 @@ void adxl345_set_power_ctl(uint8_t power_ctl) {
 void adxl345_read_acceleration(acceleration_t *acceleration) {
   uint8_t raw_acceleration[6];
   uint8_t length = 6;
-  float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
-  uint8_t data_format;
-  uint8_t range_bits;
-
+ 
   adxl345_multi_byte_read(ADXL345_REGISTER_DATAX0, raw_acceleration, length);
-
-  adxl345_single_byte_read(ADXL345_REGISTER_DATA_FORMAT, &data_format);
-
-  if ((data_format & ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT) == 0) {
-    range_bits = data_format & ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_MASK;
-
-    switch (range_bits) {
-      case 0 : 
-        scale_factor = ADXL345_SCALE_FACTOR_2G_10BIT_RES;
-        break;
-      case 1 : 
-        scale_factor = ADXL345_SCALE_FACTOR_4G_10BIT_RES;
-        break;
-      case 2 : 
-        scale_factor = ADXL345_SCALE_FACTOR_8G_10BIT_RES;
-        break;
-      case 3 : 
-        scale_factor = ADXL345_SCALE_FACTOR_16G_10BIT_RES;
-        break;
-    }
-  }
-  
 
   acceleration -> x = ((int16_t)((uint16_t)(raw_acceleration[1] << 8) | raw_acceleration[0]) * scale_factor) / 1000.0f;
   acceleration -> y = ((int16_t)((uint16_t)(raw_acceleration[3] << 8) | raw_acceleration[2]) * scale_factor) / 1000.0f;
