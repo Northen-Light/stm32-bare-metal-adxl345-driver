@@ -11,6 +11,7 @@ static void i2c1_wait_for_ADDR(void);
 static void i2c1_wait_for_BTF(void);
 static void i2c1_wait_for_RXNE(void);
 static void i2c1_wait_for_TXE(void);
+static void i2c1_wait_for_non_BUSY(void);
 static void i2c1_set_ACK(void);
 static void i2c1_set_NACK(void);
 static void i2c1_clear_addr(void);
@@ -36,6 +37,7 @@ void i2c1_init(void) {
 }
 
 void i2c1_slave_single_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *byte) {
+  i2c1_wait_for_non_BUSY();
   i2c1_set_ACK();
 
   i2c1_start();
@@ -61,6 +63,7 @@ void i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address,
 
   uint8_t idx = 0;
 
+  i2c1_wait_for_non_BUSY();
   i2c1_set_ACK();
 
   i2c1_start();
@@ -87,6 +90,7 @@ void i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address,
 }
 
 void i2c1_slave_single_byte_write(uint8_t slave_address, uint8_t register_address, uint8_t byte) {
+  i2c1_wait_for_non_BUSY();
   i2c1_start();
   i2c1_send_address(slave_address, 0);
   i2c1_clear_addr();
@@ -138,6 +142,10 @@ static void i2c1_wait_for_RXNE(void) {
 
 static void i2c1_wait_for_TXE(void) {
   while ((I2C1_SR1 & I2C1_SR1_TXE) == 0) {}
+}
+
+static void i2c1_wait_for_non_BUSY(void) {
+  while ((I2C1_SR2 & I2C1_SR2_BUSY) != 0) {}
 }
 
 static void i2c1_set_ACK(void) {
