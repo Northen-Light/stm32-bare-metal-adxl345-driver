@@ -41,5 +41,10 @@
 #define I2C1_SR1_BTF                          (1U << 2)
 #define I2C1_SR1_RXNE                         (1U << 6)
 #define I2C1_SR1_TXE                          (1U << 7)
+#define I2C1_SR1_BERR                         (1U << 8)
+#define I2C1_SR1_ARLO                         (1U << 9)
+#define I2C1_SR1_AF                           (1U << 10)
+#define I2C1_SR2_MSL                          (1U << 0)
 #define I2C1_SR2_BUSY                         (1U << 1)
+
 #endif

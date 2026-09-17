@@ -28,6 +28,7 @@ LDFLAGS = \
 
 SRCS = \
 	startup/startup.c \
+	src/systick.c \
 	src/main.c \
 	src/i2c.c \
 	src/adxl345.c

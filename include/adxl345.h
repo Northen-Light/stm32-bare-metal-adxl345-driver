@@ -9,11 +9,22 @@ typedef struct {
   float z;
 } acceleration_t;
 
-void adxl345_read_device_id(uint8_t *byte);
-void adxl345_set_data_format(uint8_t data_format);
-void adxl345_set_bw_rate(uint8_t bw_rate);
-void adxl345_set_power_ctl(uint8_t power_ctl);
-void adxl345_read_acceleration(acceleration_t *acceleration);
+typedef enum {
+  ADXL345_STATUS_OK,
+  ADXL345_STATUS_I2C_BUS_ERROR,
+  ADXL345_STATUS_I2C_ARBITRATION_LOST,
+  ADXL345_STATUS_I2C_NACK,
+  ADXL345_STATUS_I2C_INVALID_ARGUMENT,
+  ADXL345_STATUS_I2C_TIMEOUT,
+  ADXL345_STATUS_I2C_RECOVERY_FAILED,
+  ADXL345_STATUS_UNKNOWN,
+} adxl345_status_t;
+
+adxl345_status_t adxl345_read_device_id(uint8_t *byte);
+adxl345_status_t adxl345_set_data_format(uint8_t data_format);
+adxl345_status_t adxl345_set_bw_rate(uint8_t bw_rate);
+adxl345_status_t adxl345_set_power_ctl(uint8_t power_ctl);
+adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
 
 
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G                   (0x0U << 0)
