@@ -7,7 +7,8 @@ uint8_t device_id;
 acceleration_t acceleration;
 adxl345_status_t status = ADXL345_STATUS_UNKNOWN;
 
-void interrupt_callback(void);
+void data_ready_interrupt_callback(void);
+uint32_t data_ready_counts = 0;
 
 void main(void) {
   i2c1_init();
@@ -19,7 +20,7 @@ void main(void) {
     adxl345_setup_interrupt(
       ADXL345_REGISTER_INT_ENABLE_DATA_READY, 
       (uint8_t)~ADXL345_REGISTER_INT_MAP_DATA_READY, 
-      interrupt_callback
+      data_ready_interrupt_callback
     );
 
     status =  adxl345_set_bw_rate(ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ);
@@ -40,8 +41,9 @@ void main(void) {
   while (1) {}
 }
 
-void interrupt_callback(void) {
+void data_ready_interrupt_callback(void) {
   if (status == ADXL345_STATUS_OK) {
-    adxl345_read_acceleration(&acceleration);
+    status = adxl345_read_acceleration(&acceleration);
+    data_ready_counts++;
   }
 }
