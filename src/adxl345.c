@@ -2,8 +2,6 @@
 #include "adxl345_internal.h"
 #include "i2c.h"
 
-extern uint8_t ADXL345_7BIT_I2C_ADDRESS;
-
 float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte);
