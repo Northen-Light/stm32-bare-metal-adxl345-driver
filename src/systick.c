@@ -1,5 +1,6 @@
 #include "systick.h"
 #include "systick_internal.h"
+#include "cortex_m3.h"
 
 static volatile uint32_t systick_ms = 0;
 

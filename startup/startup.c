@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "systick_internal.h"
+#include "exti_internal.h"
 
 extern uint32_t _estack;
 extern uint32_t _sidata;
@@ -12,6 +13,7 @@ void main(void);
 void Reset_Handler(void);
 void HardFault_Handler(void);
 void SysTick_Handler(void);
+void EXTI0_IRQHandler(void);
 
 __attribute__((section(".isr_vector")))
 uintptr_t vector_table[] = {
@@ -31,6 +33,13 @@ uintptr_t vector_table[] = {
   (uintptr_t) 0,
   (uintptr_t) 0,
   (uintptr_t) SysTick_Handler,
+  (uintptr_t) 0,
+  (uintptr_t) 0,
+  (uintptr_t) 0,
+  (uintptr_t) 0,
+  (uintptr_t) 0,
+  (uintptr_t) 0,
+  (uintptr_t) EXTI0_IRQHandler,
 };
 
 void Reset_Handler(void) {

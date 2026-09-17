@@ -6,7 +6,13 @@
 #define RCC_APB2ENR                           *((volatile uint32_t *) 0x40021018U)
 #define RCC_APB1ENR                           *((volatile uint32_t *) 0x4002101CU)
 
-#define GPIOB_CRL                             *((volatile uint32_t *) 0x40010C00U) 
+#define GPIOB_CRL                             *((volatile uint32_t *) 0x40010C00U)
+
+#define AFIO_EXTICR1                          *((volatile uint32_t *) 0x40010008U)
+
+#define EXTI_IMR                              *((volatile uint32_t *) 0x40010400U) 
+#define EXTI_RTSR                             *((volatile uint32_t *) 0x40010408U)
+#define EXTI_PR                               *((volatile uint32_t *) 0x40010414U)
 
 #define I2C1_CR1                              *((volatile uint32_t *) 0x40005400U)   
 #define I2C1_CR2                              *((volatile uint32_t *) 0x40005404U)   
@@ -19,11 +25,21 @@
 
 #define RCC_APB2ENR_IOPBEN                    (1U << 3)
 #define RCC_APB1ENR_I2C1EN                    (1U << 21)
+#define RCC_APB2ENR_AFIOEN                    (1U << 0)
 
+#define GPIOB_CRL_PIN0_MASK                   (0xFU << 0)
+#define GPIOB_CRL_PIN0_FLOATING_INPUT         (0x4U << 0)
 #define GPIOB_CRL_PIN6_MASK                   (0xFU << 24)
 #define GPIOB_CRL_PIN6_ALT_OD_2MHZ            (0xEU << 24)
 #define GPIOB_CRL_PIN7_MASK                   (0xFU << 28)
 #define GPIOB_CRL_PIN7_ALT_OD_2MHZ            (0xEU << 28)
+
+#define AFIO_EXTICR1_EXTI0_MASK               (0xFU << 0)
+#define AFIO_EXTICR1_EXTI0_PB0                (1U << 0)
+
+#define EXTI_IMR_LINE0                        (1U << 0)
+#define EXTI_RTSR_LINE0                       (1U << 0)
+#define EXTI_PR_LINE0                         (1U << 0)
 
 #define I2C1_CR1_RESET                        0x0
 #define I2C1_CR2_FREQ_MASK                    (0x3FU << 0)

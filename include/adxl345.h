@@ -20,11 +20,14 @@ typedef enum {
   ADXL345_STATUS_UNKNOWN,
 } adxl345_status_t;
 
+typedef void (*adxl345_interrupt_callback_t)(void);
+
 adxl345_status_t adxl345_read_device_id(uint8_t *byte);
 adxl345_status_t adxl345_set_data_format(uint8_t data_format);
 adxl345_status_t adxl345_set_bw_rate(uint8_t bw_rate);
 adxl345_status_t adxl345_set_power_ctl(uint8_t power_ctl);
 adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
+void adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback);
 
 
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G                   (0x0U << 0)
@@ -61,5 +64,11 @@ adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_0_39HZ             (0x2U << 0)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_0_20HZ             (0x1U << 0)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_0_10HZ             (0x0U << 0)
+
+#define ADXL345_REGISTER_INT_ENABLE_DATA_READY                       (0x1U << 7)
+
+#define ADXL345_REGISTER_INT_MAP_DATA_READY                          (0x1U << 7)
+
+#define ADXL345_REGISTER_INT_SOURCE_DATA_READY                       (0x1U << 7)
 
 #endif

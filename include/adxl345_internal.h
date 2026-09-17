@@ -7,6 +7,9 @@
 #define ADXL345_REGISTER_BW_RATE                          0x2C
 #define ADXL345_REGISTER_POWER_CTL                        0x2D
 #define ADXL345_REGISTER_DATAX0                           0x32
+#define ADXL345_REGISTER_INT_ENABLE                       0x2E  
+#define ADXL345_REGISTER_INT_MAP                          0x2F  
+#define ADXL345_REGISTER_INT_SOURCE                       0x30  
 
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_MASK      (0x3U << 0)
 

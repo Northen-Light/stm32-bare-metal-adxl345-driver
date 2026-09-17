@@ -1,6 +1,7 @@
 #include "adxl345.h"
 #include "adxl345_internal.h"
 #include "i2c.h"
+#include "exti.h"
 
 float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
 
@@ -70,6 +71,12 @@ adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration) {
   acceleration -> z = ((int16_t)((uint16_t)(raw_acceleration[5] << 8) | raw_acceleration[4]) * scale_factor) / 1000.0f;
 
   return status;
+}
+
+void adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback) {
+  adxl345_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
+  adxl345_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
+  exti_set_interrupt_callback((exti_interrupt_callback_t)callback);
 }
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {

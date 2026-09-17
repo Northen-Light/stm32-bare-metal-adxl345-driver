@@ -1,17 +1,27 @@
 #include "i2c.h"
 #include "adxl345.h"
 #include "adxl345_internal.h"
+#include "exti.h"
 
 uint8_t device_id;
 acceleration_t acceleration;
-adxl345_status_t status;
+adxl345_status_t status = ADXL345_STATUS_UNKNOWN;
+
+void interrupt_callback(void);
 
 void main(void) {
   i2c1_init();
+  exti_init();
 
   status = adxl345_read_device_id(&device_id);
 
   if (status == ADXL345_STATUS_OK) { 
+    adxl345_setup_interrupt(
+      ADXL345_REGISTER_INT_ENABLE_DATA_READY, 
+      (uint8_t)~ADXL345_REGISTER_INT_MAP_DATA_READY, 
+      interrupt_callback
+    );
+
     status =  adxl345_set_bw_rate(ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ);
     
     if (status == ADXL345_STATUS_OK) {
@@ -28,4 +38,10 @@ void main(void) {
   }
 
   while (1) {}
+}
+
+void interrupt_callback(void) {
+  if (status == ADXL345_STATUS_OK) {
+    adxl345_read_acceleration(&acceleration);
+  }
 }

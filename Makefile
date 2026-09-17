@@ -29,9 +29,10 @@ LDFLAGS = \
 SRCS = \
 	startup/startup.c \
 	src/systick.c \
-	src/main.c \
+	src/exti.c \
 	src/i2c.c \
-	src/adxl345.c
+	src/adxl345.c \
+	src/main.c \
 
 OBJS = $(SRCS:%.c=$(BUILD_DIR)/%.o)
 
