@@ -8,11 +8,11 @@
 static i2c_status_t i2c1_start(uint32_t start_time_ms, uint32_t timeout_ms);
 static i2c_status_t i2c1_send_address(uint8_t address, uint8_t direction, uint32_t start_time_ms, uint32_t timeout_ms);
 static void i2c1_request_stop(void);
-static i2c_status_t i2c1_wait_for_stop(uint32_t start_time_ms, uint32_t timeout_ms);
 static i2c_status_t i2c1_write_byte(uint8_t byte, uint32_t start_time_ms, uint32_t timeout_ms);
 static i2c_status_t i2c1_read_byte(uint8_t *byte, uint32_t start_time_ms, uint32_t timeout_ms);
 static i2c_status_t i2c1_wait_for_flag(uint32_t status_mask, uint32_t start_time_ms, uint32_t timeout_ms);
 static i2c_status_t i2c1_wait_for_non_BUSY(uint32_t start_time_ms, uint32_t timeout_ms);
+static i2c_status_t i2c1_wait_for_stop(uint32_t start_time_ms, uint32_t timeout_ms);
 static void i2c1_set_ACK(void);
 static void i2c1_set_NACK(void);
 static void i2c1_clear_addr(void);
@@ -201,32 +201,18 @@ i2c_status_t i2c1_slave_single_byte_write(uint8_t slave_address, uint8_t registe
     return status;
 }
 
-static i2c_status_t i2c1_start(uint32_t start_time_ms, uint32_t timeout_ms) {
-  i2c_status_t status = i2c1_detect_error();
-  if (status != I2C_STATUS_OK) return status;
+static i2c_status_t i2c1_start(uint32_t start_time_ms, uint32_t timeout_ms) {  
   I2C1_CR1 |= I2C1_CR1_START;
   return i2c1_wait_for_flag(I2C1_SR1_SB, start_time_ms, timeout_ms);
 }
 
 static i2c_status_t i2c1_send_address(uint8_t address, uint8_t direction, uint32_t start_time_ms, uint32_t timeout_ms) {
-  i2c_status_t status = i2c1_detect_error();
-  if (status != I2C_STATUS_OK) return status;
   I2C1_DR = ((address << 1) | direction);
   return i2c1_wait_for_flag(I2C1_SR1_ADDR, start_time_ms, timeout_ms);
 }
 
 static void i2c1_request_stop(void) {
   I2C1_CR1 |= I2C1_CR1_STOP;
-}
-
-static i2c_status_t i2c1_wait_for_stop(uint32_t start_time_ms, uint32_t timeout_ms) {
-  while ((I2C1_CR1 & I2C1_CR1_STOP) != 0) {
-    if ((uint32_t)(systick_get_systick_ms() - start_time_ms) >= timeout_ms) {
-      return I2C_STATUS_TIMEOUT;
-    }
-  }
-  
-  return I2C_STATUS_OK;
 }
 
 static i2c_status_t i2c1_write_byte(uint8_t byte, uint32_t start_time_ms, uint32_t timeout_ms) {
@@ -263,6 +249,16 @@ static i2c_status_t i2c1_wait_for_non_BUSY(uint32_t start_time_ms, uint32_t time
     if ((uint32_t)(systick_get_systick_ms() - start_time_ms) >= timeout_ms) return I2C_STATUS_TIMEOUT;
     if ((I2C1_SR2 & I2C1_SR2_BUSY) == 0) return I2C_STATUS_OK;
   }
+}
+
+static i2c_status_t i2c1_wait_for_stop(uint32_t start_time_ms, uint32_t timeout_ms) {
+  while ((I2C1_CR1 & I2C1_CR1_STOP) != 0) {
+    if ((uint32_t)(systick_get_systick_ms() - start_time_ms) >= timeout_ms) {
+      return I2C_STATUS_TIMEOUT;
+    }
+  }
+  
+  return I2C_STATUS_OK;
 }
 
 static void i2c1_set_ACK(void) {
