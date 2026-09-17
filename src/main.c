@@ -1,6 +1,5 @@
 #include "i2c.h"
 #include "adxl345.h"
-#include "adxl345_internal.h"
 #include "exti.h"
 
 uint8_t device_id;
