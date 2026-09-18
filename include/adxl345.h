@@ -48,10 +48,6 @@ void adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, ad
 #define ADXL345_REGISTER_POWER_CTL_LINK_BIT                          (1U << 5)
 
 #define ADXL345_REGISTER_BW_RATE_LOW_POWER_BIT                       (1U << 4)
-#define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_3200HZ             (0xFU << 0)
-#define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_1600HZ             (0xEU << 0)
-#define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_800HZ              (0xDU << 0)
-#define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_400HZ              (0xCU << 0)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ              (0xBU << 0)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_100HZ              (0xAU << 0)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_50HZ               (0x9U << 0)
