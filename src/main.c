@@ -13,25 +13,27 @@ void main(void) {
   i2c1_init();
   exti_init();
 
-  status = adxl345_read_device_id(&device_id);
+  status = adxl345_read_register_device_id(&device_id);
 
   if (status == ADXL345_STATUS_OK) { 
-    adxl345_setup_interrupt(
+    status = adxl345_setup_interrupt(
       ADXL345_REGISTER_INT_ENABLE_DATA_READY, 
       (uint8_t)~ADXL345_REGISTER_INT_MAP_DATA_READY, 
       data_ready_interrupt_callback
     );
 
-    status =  adxl345_set_bw_rate(ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ);
-    
     if (status == ADXL345_STATUS_OK) {
-      status = adxl345_set_data_format(ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT | ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G);
+      status =  adxl345_set_register_bandwidth_rate(ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ);
       
       if (status == ADXL345_STATUS_OK) {
-        status = adxl345_set_power_ctl(ADXL345_REGISTER_POWER_CTL_MEASURE_BIT);
-
+        status = adxl345_set_register_data_format(ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT | ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G);
+        
         if (status == ADXL345_STATUS_OK) {
-          adxl345_read_acceleration(&acceleration);
+          status = adxl345_set_register_power_control(ADXL345_REGISTER_POWER_CTL_MEASURE_BIT);
+
+          if (status == ADXL345_STATUS_OK) {
+            adxl345_read_acceleration(&acceleration);
+          }
         }
       }
     }

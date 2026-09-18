@@ -11,11 +11,11 @@ static adxl345_status_t adxl345_multi_byte_read(uint8_t register_address, uint8_
 static adxl345_status_t adxl345_convert_i2c_to_adxl345_status(i2c_status_t status);
 
 
-adxl345_status_t adxl345_read_device_id(uint8_t *byte) {
-  return adxl345_single_byte_read(ADXL345_REGISTER_DEVID_ID, byte);
+adxl345_status_t adxl345_read_register_device_id(uint8_t *device_id) {
+  return adxl345_single_byte_read(ADXL345_REGISTER_DEVID_ID, device_id);
 }
 
-adxl345_status_t adxl345_set_data_format(uint8_t data_format) {
+adxl345_status_t adxl345_set_register_data_format(uint8_t data_format) {
   uint8_t range_bits;
   uint8_t data_format_value;
   adxl345_status_t status;
@@ -50,11 +50,11 @@ adxl345_status_t adxl345_set_data_format(uint8_t data_format) {
   return status;
 }
 
-adxl345_status_t adxl345_set_bw_rate(uint8_t bw_rate) {
+adxl345_status_t adxl345_set_register_bandwidth_rate(uint8_t bw_rate) {
   return adxl345_single_byte_write(ADXL345_REGISTER_BW_RATE, bw_rate);
 }
 
-adxl345_status_t adxl345_set_power_ctl(uint8_t power_ctl) {
+adxl345_status_t adxl345_set_register_power_control(uint8_t power_ctl) {
   return adxl345_single_byte_write(ADXL345_REGISTER_POWER_CTL, power_ctl);
 }
 
@@ -73,10 +73,24 @@ adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration) {
   return status;
 }
 
-void adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback) {
-  adxl345_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
-  adxl345_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
+adxl345_status_t adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback) {
+  adxl345_status_t status;
+
+  status = adxl345_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
+  if (status != ADXL345_STATUS_OK) return status;
+
+  status = adxl345_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
+  if (status != ADXL345_STATUS_OK) return status;
+
   exti_set_interrupt_callback((exti_interrupt_callback_t)callback);
+
+  return status;
+}
+
+adxl345_status_t adxl345_read_register_interrupt_source(void) {
+  uint8_t int_source_value;
+
+  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, &int_source_value);
 }
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {
