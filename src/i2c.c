@@ -72,8 +72,26 @@ i2c_status_t i2c1_slave_single_byte_read(uint8_t slave_address, uint8_t register
   if (status != I2C_STATUS_OK) goto cleanup;
 
   i2c1_set_NACK();
+
+  uint32_t saved_primask;
+
+  __asm volatile(
+    "mrs %0, primask      \n"
+    "cpsid i              \n"
+    : "=r"(saved_primask)
+    :
+    : "memory"
+  );
+
   i2c1_clear_addr();
   i2c1_request_stop();
+
+   __asm volatile(
+    "msr primask, %0      \n"
+    :
+    : "r"(saved_primask)
+    : "memory"
+  );
 
   status = i2c1_read_byte(byte, start_time_ms, I2C_TRANSACTION_TIMEOUT);
   if (status != I2C_STATUS_OK) goto cleanup;
@@ -138,12 +156,27 @@ i2c_status_t i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_
   if (status != I2C_STATUS_OK) goto cleanup;
 
   i2c1_set_NACK();
-  status = i2c1_read_byte(&bytes[byte_index++], start_time_ms, I2C_TRANSACTION_TIMEOUT);
-  if (status != I2C_STATUS_OK) goto cleanup;
-  i2c1_request_stop();
 
-  status = i2c1_read_byte(&bytes[byte_index++], start_time_ms, I2C_TRANSACTION_TIMEOUT);
-  if (status != I2C_STATUS_OK) goto cleanup;
+  uint32_t saved_primask;
+
+  __asm volatile(
+    "mrs %0, primask      \n"
+    "cpsid i              \n"
+    : "=r"(saved_primask)
+    :
+    : "memory"
+  );
+
+  bytes[byte_index++] = I2C1_DR;
+  i2c1_request_stop();
+  bytes[byte_index++] = I2C1_DR;
+
+  __asm volatile(
+    "msr primask, %0      \n"
+    :
+    : "r"(saved_primask)
+    : "memory"
+  );
 
   status = i2c1_read_byte(&bytes[byte_index++], start_time_ms, I2C_TRANSACTION_TIMEOUT);
   if (status != I2C_STATUS_OK) goto cleanup;
