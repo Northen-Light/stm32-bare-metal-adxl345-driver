@@ -135,7 +135,7 @@ Verifies:
 - ACK/NACK sequencing
 - Reading the ADXL345 `DEVID` register (`0xE5`)
 
-![Single-byte register read](debugging/logic-analyzer/captures/i2c-single-byte-register-read.png)
+![Single-byte register read](debugging/logic-analyzer/captures/i2c-multi-byte-register-read-transaction-time.png)
 
 ---
 
@@ -148,7 +148,7 @@ Verifies:
 - NACK on the final byte
 - STOP generation after the final byte
 
-![Multi-byte burst read](debugging/logic-analyzer/captures/i2c-multi-byte-register-read.png)
+![Multi-byte burst read](debugging/logic-analyzer/captures/i2c-single-byte-register-read-transaction-time.png)
 
 ---
 
@@ -162,7 +162,7 @@ Verifies:
 - ACK sequencing
 - STOP generation
 
-![Single-byte register write](debugging/logic-analyzer/captures/i2c-single-byte-register-write.png)
+![Single-byte register write](debugging/logic-analyzer/captures/i2c-single-byte-register-write-transaction-time.png)
 
 ---
 
