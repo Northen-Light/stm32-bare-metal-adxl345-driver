@@ -26,7 +26,11 @@ void main(void) {
       status =  adxl345_set_register_bandwidth_rate(ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ);
       
       if (status == ADXL345_STATUS_OK) {
-        status = adxl345_set_register_data_format(ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT | ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G);
+        status = adxl345_set_register_data_format(
+          ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT | 
+          ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G |
+          ADXL345_REGISTER_DATA_FORMAT_SELF_TEST_BIT
+        );
         
         if (status == ADXL345_STATUS_OK) {
           status = adxl345_set_register_power_control(ADXL345_REGISTER_POWER_CTL_MEASURE_BIT);

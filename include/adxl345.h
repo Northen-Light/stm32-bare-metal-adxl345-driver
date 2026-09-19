@@ -35,7 +35,6 @@ adxl345_status_t adxl345_read_register_interrupt_source(void);
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_8G                   (0x2U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_16G                  (0x3U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT                    (1U << 3)
-#define ADXL345_REGISTER_DATA_FORMAT_INT_INVERT_BIT                  (1U << 5)
 #define ADXL345_REGISTER_DATA_FORMAT_SELF_TEST_BIT                   (1U << 7)
 
 #define ADXL345_REGISTER_POWER_CTL_WAKEUP_BITS_8HZ                   (0x0U << 0)
@@ -44,8 +43,6 @@ adxl345_status_t adxl345_read_register_interrupt_source(void);
 #define ADXL345_REGISTER_POWER_CTL_WAKEUP_BITS_1HZ                   (0x3U << 0)
 #define ADXL345_REGISTER_POWER_CTL_SLEEP_BIT                         (1U << 2)
 #define ADXL345_REGISTER_POWER_CTL_MEASURE_BIT                       (1U << 3)
-#define ADXL345_REGISTER_POWER_CTL_AUTOSLEEP_BIT                     (1U << 4)
-#define ADXL345_REGISTER_POWER_CTL_LINK_BIT                          (1U << 5)
 
 #define ADXL345_REGISTER_BW_RATE_LOW_POWER_BIT                       (1U << 4)
 #define ADXL345_REGISTER_BW_RATE_OUTPUT_DATA_RATE_200HZ              (0xBU << 0)
