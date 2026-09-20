@@ -28,7 +28,7 @@ adxl345_status_t adxl345_set_register_bandwidth_rate(uint8_t bw_rate);
 adxl345_status_t adxl345_set_register_power_control(uint8_t power_ctl);
 adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
 adxl345_status_t adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback);
-adxl345_status_t adxl345_read_register_interrupt_source(void);
+adxl345_status_t adxl345_read_register_interrupt_source(uint8_t *int_source_value);
 
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G                   (0x0U << 0)
 #define ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_4G                   (0x1U << 0)

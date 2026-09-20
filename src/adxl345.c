@@ -3,7 +3,7 @@
 #include "i2c.h"
 #include "exti.h"
 
-float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
+static float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte);
 static adxl345_status_t adxl345_single_byte_write(uint8_t register_address, uint8_t byte);
@@ -27,7 +27,7 @@ adxl345_status_t adxl345_set_register_data_format(uint8_t data_format) {
   if (status != ADXL345_STATUS_OK) return status;
 
   if ((data_format_value & ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT) == 0) {
-    range_bits = data_format & ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_MASK;
+    range_bits = data_format_value & ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_MASK;
 
     switch (range_bits) {
       case 0 : 
@@ -76,21 +76,20 @@ adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration) {
 adxl345_status_t adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t interrupt_map, adxl345_interrupt_callback_t callback) {
   adxl345_status_t status;
 
+  exti_set_interrupt_callback((exti_interrupt_callback_t)callback);
+
   status = adxl345_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
   if (status != ADXL345_STATUS_OK) return status;
 
   status = adxl345_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
   if (status != ADXL345_STATUS_OK) return status;
 
-  exti_set_interrupt_callback((exti_interrupt_callback_t)callback);
 
   return status;
 }
 
-adxl345_status_t adxl345_read_register_interrupt_source(void) {
-  uint8_t int_source_value;
-
-  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, &int_source_value);
+adxl345_status_t adxl345_read_register_interrupt_source(uint8_t *int_source_value) {
+  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, int_source_value);
 }
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {
@@ -119,7 +118,7 @@ static adxl345_status_t adxl345_convert_i2c_to_adxl345_status(i2c_status_t statu
     case I2C_STATUS_NACK :
       return ADXL345_STATUS_I2C_NACK;
     case I2C_STATUS_TIMEOUT : 
-      return ADXL345_STATUS_I2C_NACK;
+      return ADXL345_STATUS_I2C_TIMEOUT;
     case I2C_STATUS_INVALID_ARGUMENT :
       return ADXL345_STATUS_I2C_INVALID_ARGUMENT;
     case I2C_STATUS_RECOVERY_FAILED : 

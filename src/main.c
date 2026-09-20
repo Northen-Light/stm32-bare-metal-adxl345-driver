@@ -7,7 +7,8 @@ acceleration_t acceleration;
 adxl345_status_t status = ADXL345_STATUS_UNKNOWN;
 
 void data_ready_interrupt_callback(void);
-uint32_t data_ready_counts = 0;
+uint32_t samples_captured = 0;
+volatile bool data_ready = false;
 
 void main(void) {
   i2c1_init();
@@ -28,15 +29,29 @@ void main(void) {
       if (status == ADXL345_STATUS_OK) {
         status = adxl345_set_register_data_format(
           ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT | 
-          ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G |
-          ADXL345_REGISTER_DATA_FORMAT_SELF_TEST_BIT
+          ADXL345_REGISTER_DATA_FORMAT_RANGE_BITS_2G
         );
         
         if (status == ADXL345_STATUS_OK) {
           status = adxl345_set_register_power_control(ADXL345_REGISTER_POWER_CTL_MEASURE_BIT);
 
           if (status == ADXL345_STATUS_OK) {
-            adxl345_read_acceleration(&acceleration);
+            status = adxl345_read_acceleration(&acceleration);
+
+            if (status == ADXL345_STATUS_OK) {
+              samples_captured++;
+
+              while (1) {
+                if (data_ready) {
+                  data_ready = false;
+                  status = adxl345_read_acceleration(&acceleration);
+                  
+                  if (status == ADXL345_STATUS_OK) {
+                    samples_captured++;
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -47,8 +62,5 @@ void main(void) {
 }
 
 void data_ready_interrupt_callback(void) {
-  if (status == ADXL345_STATUS_OK) {
-    status = adxl345_read_acceleration(&acceleration);
-    data_ready_counts++;
-  }
+  data_ready = true;
 }
