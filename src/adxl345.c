@@ -88,8 +88,8 @@ adxl345_status_t adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t inter
   return status;
 }
 
-adxl345_status_t adxl345_read_register_interrupt_source(uint8_t *int_source_value) {
-  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, int_source_value);
+adxl345_status_t adxl345_read_register_interrupt_source(uint8_t *interrupt_source_value) {
+  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, interrupt_source_value);
 }
 
 static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {
