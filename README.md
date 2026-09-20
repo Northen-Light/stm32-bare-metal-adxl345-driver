@@ -1,181 +1,225 @@
 # STM32 Bare-Metal ADXL345 Driver
 
-A bare-metal ADXL345 accelerometer driver for the STM32F103 written in C using register-level programming.
+A bare-metal ADXL345 accelerometer driver for the STM32F103C8T6, written in C using register-level programming without STM32 HAL or LL dependencies.
 
-This project interfaces an STM32F103 microcontroller with the Analog Devices ADXL345 3-axis accelerometer over I²C. It implements a custom STM32F103 I²C driver together with a reusable ADXL345 device driver supporting sensor configuration, measurement control, raw and converted acceleration readings, and data-ready interrupt handling.
-
----
+The project interfaces an STM32F103 with an Analog Devices ADXL345 over I²C1. It supports sensor configuration and three-axis acceleration readings, with DATA_READY notification, polling-based I²C transfers, error reporting, transaction timeouts, and basic cleanup.
 
 ## Features
 
 ### STM32 I²C Driver
 
-- Bare-metal I²C1 driver
-- Register-level STM32F103 programming
-- Single-byte register writes
-- Single-byte register reads
-- Multi-byte burst register reads
-- Repeated START generation
-- ACK/NACK handling
-- Polling-based STM32 I²C state machine
+- Bare-metal I2C1 initialization
+- Register-level GPIO and I²C configuration
+- Standard-mode operation at 100 kHz with an 8 MHz peripheral clock
+- Single-byte register writes and reads
+- Multi-byte burst reads of three or more bytes
+- START, repeated START, ACK/NACK, and STOP handling
+- Bus error, arbitration loss, and NACK detection
+- SysTick-based transaction timeouts and basic error cleanup
+- Interrupt protection around critical receive sequences
 
 ### ADXL345 Driver
 
-- Device ID verification
-- Measurement range configuration
-- Output data rate configuration
-- Raw acceleration reads
-- Acceleration conversion to `g`
-- Start/Stop measurement
-- Interrupt configuration
-- Interrupt routing (INT1 / INT2)
-- Register read-back verification
-- Modular driver architecture
+- Device ID and interrupt-source register reads
+- Measurement range configuration: ±2 g, ±4 g, ±8 g, and ±16 g
+- Full-resolution and fixed 10-bit measurement modes
+- Output data rate configuration through 200 Hz for this I²C setup
+- Measurement/standby, manual sleep, and low-power configuration
+- Six-byte XYZ burst reads and acceleration conversion to `g`
+- Cached scale factor derived from DATA_FORMAT readback
+- DATA_READY interrupt configuration on INT1
 
-### Interrupt Support
+## Hardware
 
-- ADXL345 DATA_READY interrupt
-- STM32 EXTI and NVIC configuration
-- Interrupt-driven data acquisition
-
----
-
-## Hardware Used
-
-- STM32F103C8T6 Blue Pill
+- STM32F103C8T6 Blue Pill development board
 - ADXL345 accelerometer module
-- ST-Link V2
-- Breadboard and jumper wires
+- ST-Link programmer/debugger
+- Logic analyzer
 
----
+## Connections
 
-## Pin Connections
-
-| STM32F103 | ADXL345 | Description |
-|------------|----------|-------------|
-| PB6 | SCL | I²C Clock |
-| PB7 | SDA | I²C Data |
-| PA0 | INT2 | Data Ready Interrupt |
+| STM32F103 / Supply | ADXL345 | Function |
+|---|---|---|
+| PB6 | SCL | I²C clock |
+| PB7 | SDA | I²C data |
+| PB0 | INT1 | DATA_READY interrupt |
 | 3.3V | VCC | Power |
 | GND | GND | Ground |
-| 3.3V | CS | Select I²C Mode |
-| GND | SDO | I²C Address = 0x53 |
+| 3.3V | CS | Select I²C mode |
+| 3.3V | SDO / ALT ADDRESS | Select address `0x1D` |
 
----
+These connections match the current firmware. SCL and SDA require pull-up resistors to 3.3V; check whether the module already includes them. Connecting SDO to GND selects address `0x53` and requires changing the driver address.
+
+## Hardware Setup
+
+STM32F103C8T6 connected to the ADXL345 module, with ST-Link used for programming and debugging. The logic analyzer monitors SCL, SDA, and the sensor interrupt line.
+
+## Driver Architecture
+
+```mermaid
+flowchart TD
+    A[Application] --> B[ADXL345 device driver]
+    B --> C[I2C1 peripheral driver]
+    C --> D[STM32F103 registers]
+```
+
+The I²C layer handles peripheral configuration, register transactions, timeouts, and basic error cleanup.
+
+The ADXL345 layer implements sensor configuration, register access, and acceleration conversion on top of the I²C driver.
+
+EXTI provides DATA_READY notification, while SysTick provides the millisecond timebase used by the I²C driver.
+
+## Public Driver API
+
+```c
+adxl345_status_t adxl345_read_register_device_id(uint8_t *device_id);
+
+adxl345_status_t adxl345_set_register_data_format(uint8_t data_format);
+adxl345_status_t adxl345_set_register_bandwidth_rate(uint8_t bw_rate);
+adxl345_status_t adxl345_set_register_power_control(uint8_t power_ctl);
+
+adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
+
+adxl345_status_t adxl345_setup_interrupt(
+    uint8_t interrupt_enable,
+    uint8_t interrupt_map,
+    adxl345_interrupt_callback_t callback);
+
+adxl345_status_t adxl345_read_register_interrupt_source(
+    uint8_t *int_source_value);
+```
+
+The public sensor APIs use a blocking design and propagate I²C failures through `adxl345_status_t`. Acceleration is returned as floating-point X, Y, and Z values in `g`.
+
+## Acceleration Reading
+
+Each acceleration read:
+
+1. Writes the starting register address, DATAX0 (`0x32`).
+2. Generates a repeated START and addresses the sensor for reading.
+3. Reads six consecutive bytes for X, Y, and Z.
+4. ACKs intermediate bytes and NACKs the final byte before ending the transfer with STOP.
+5. Combines each byte pair into a signed value and applies the cached scale factor.
+
+The driver expects right-aligned sensor output. The example configures full resolution, a ±2 g range, and a 200 Hz output data rate.
+
+## DATA_READY Handling
+
+The sensor's INT1 output connects to PB0, mapped to EXTI0.
+
+The EXTI callback sets a `volatile` data-ready flag. The main loop clears the flag before reading the sensor and increments `samples_captured` after a successful read.
+
+This keeps blocking I²C transfers outside the interrupt handler and allows SysTick to advance during timeout checks. DATA_READY provides notification; the I²C transfer itself remains polling-based.
+
+## Error Handling
+
+All waits within a transaction share a 10 ms timeout budget. The driver checks bus-error, arbitration-loss, and NACK flags while waiting for transfer events.
+
+On failure, basic cleanup requests STOP where applicable and uses a separate 10 ms wait budget. It avoids requesting STOP when arbitration loss is detected, clears handled error flags, and reports `RECOVERY_FAILED` if the STOP wait times out.
+
+Cleanup is best effort; it does not guarantee recovery from every receive-stage timeout or a physically stuck bus.
+
+## Verification
+
+Device ID and acceleration values can be inspected in GDB through `device_id` and `acceleration`. The expected device ID is `0xE5`; the application reads it but does not enforce a value comparison.
+
+DATA_FORMAT is read back to determine the conversion scale. This is not general configuration verification: the returned register value is not compared with the requested value.
+
+The address-NACK cleanup path was tested by using an incorrect address, then successfully reading with the correct address without resetting the MCU.
+
+## Logic Analyzer Validation
+
+The [`debugging/logic-analyzer/`](debugging/logic-analyzer/) directory contains transaction captures covering:
+
+- Single-byte register write
+- Single-byte register read
+- Six-byte acceleration burst read
+
+An additional DATA_READY capture measures the interval between consecutive interrupt rising edges.
+
+| Measurement | Observed result |
+|---|---|
+| Single-byte write, START to STOP | 336 µs |
+| Single-byte read, START to STOP | 460 µs |
+| Six-byte burst read, START to STOP | 1.012 ms |
+| DATA_READY interval at configured 200 Hz | Approximately 5.1 ms |
+
+The captures show addressing, ACK/NACK sequencing, repeated START, and STOP generation. They were sampled at 12 MHz with I²C configured for 100 kHz. These measurements describe the captured transactions, not worst-case timing guarantees.
 
 ## Project Structure
 
 ```text
-.
-├── app/
-│   └── main.c
-├── drivers/
-│   ├── adxl345.c
-│   └── i2c.c
+stm32-bare-metal-adxl345-driver/
+├── build/
+├── debugging/
 ├── include/
 │   ├── adxl345.h
+│   ├── adxl345_internal.h
+│   ├── cortex_m3.h
+│   ├── exti.h
+│   ├── exti_internal.h
 │   ├── i2c.h
-│   └── stm32f103xx.h
+│   ├── stm32f103xx.h
+│   ├── systick.h
+│   └── systick_internal.h
 ├── linker/
 │   └── main.ld
+├── src/
+│   ├── adxl345.c
+│   ├── exti.c
+│   ├── i2c.c
+│   ├── main.c
+│   └── systick.c
 ├── startup/
 │   └── startup.c
 ├── Makefile
 └── README.md
 ```
 
----
+## Building
 
-## Build
+Build the firmware with:
 
 ```bash
 make
 ```
 
----
-
-## Flash
+Flash and clean using:
 
 ```bash
 make flash
-```
-
----
-
-## Clean
-
-```bash
 make clean
 ```
 
----
+The configuration assumes an 8 MHz core/peripheral clock. The tested board reports 20 KiB SRAM and 128 KiB flash through ST-Link; the linker script uses the reported flash capacity.
 
-## Development tools
+## Development & Debugging Tools
 
-- arm-none-eabi-gcc
-- gdb
+- `arm-none-eabi-gcc`
 - GNU Make
-- st-util
-- ST-Link V2
-- USB Logic Analyzer (24 MHz, 8-channel)
+- GDB
+- ST-Link and `st-util`
+- Saleae Logic
 
----
+## Limitations
 
-## Logic Analyzer Verification
+- I²C transfers are blocking and polling-based; DMA and interrupt-driven transfers are not implemented.
+- The driver supports a single caller at a time and is not reentrant.
+- Error recovery is basic; peripheral reset and GPIO bus recovery are not implemented.
 
-The I²C driver was validated on real hardware using a 24 MHz USB logic analyzer.
+## What This Project Demonstrates
 
-### Single-byte register read
-
-Verifies:
-
-- START and repeated START generation
-- Device addressing
-- Register address transmission
-- ACK/NACK sequencing
-- Reading the ADXL345 `DEVID` register (`0xE5`)
-
-![Single-byte register read](debugging/logic-analyzer/captures/i2c-single-byte-register-read-transaction-time.png)
-
----
-
-### Multi-byte burst read
-
-Verifies:
-
-- Burst reads from consecutive registers
-- ACK after intermediate bytes
-- NACK on the final byte
-- STOP generation after the final byte
-
-![Multi-byte burst read](debugging/logic-analyzer/captures/i2c-multi-byte-register-read-transaction-time.png)
-
----
-
-### Single-byte register write
-
-Verifies:
-
-- Device and register addressing
-- Register write transaction
-- Data transmission
-- ACK sequencing
-- STOP generation
-
-![Single-byte register write](debugging/logic-analyzer/captures/i2c-single-byte-register-write-transaction-time.png)
-
----
-
-## Future Improvements
-
-- ADXL345 FIFO support
-- I²C timeout and error handling
-- Activity/Tap detection
-
----
+- Bare-metal STM32F103 I²C programming
+- Device-driver layering and sensor register configuration
+- Repeated START, burst reads, and timing-sensitive receive sequences
+- Signed sensor-data conversion and cached scaling
+- Short interrupt handlers with main-loop data acquisition
+- Error propagation, transaction timeouts, and basic cleanup
+- Logic analyzer protocol and timing validation
 
 ## References
 
-- STM32F103 Reference Manual (RM0008)
-- STM32F103 Datasheet
-- Analog Devices ADXL345 Datasheet
+- STM32F103 reference manual (RM0008)
+- [STM32F103x8/xB datasheet](https://www.st.com/resource/en/datasheet/stm32f103c8.pdf)
+- [ADXL345 datasheet](https://www.analog.com/media/en/technical-documentation/data-sheets/adxl345.pdf)
+- STM32F10xxx I²C optimized examples (AN2824)
