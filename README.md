@@ -86,7 +86,7 @@ adxl345_status_t adxl345_setup_interrupt(
     adxl345_interrupt_callback_t callback);
 
 adxl345_status_t adxl345_read_register_interrupt_source(
-    uint8_t *int_source_value);
+    uint8_t *interrupt_source_value);
 ```
 
 The public sensor APIs use a blocking design and propagate I²C failures through `adxl345_status_t`. Acceleration is returned as floating-point X, Y, and Z values in `g`.
