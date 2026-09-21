@@ -72,11 +72,11 @@ EXTI provides DATA_READY notification, while SysTick provides the millisecond ti
 ## Public Driver API
 
 ```c
-adxl345_status_t adxl345_read_register_device_id(uint8_t *device_id);
+adxl345_status_t adxl345_read_device_id_register(uint8_t *device_id);
 
-adxl345_status_t adxl345_set_register_data_format(uint8_t data_format);
-adxl345_status_t adxl345_set_register_bandwidth_rate(uint8_t bw_rate);
-adxl345_status_t adxl345_set_register_power_control(uint8_t power_ctl);
+adxl345_status_t adxl345_set_data_format_register(uint8_t data_format);
+adxl345_status_t adxl345_set_bandwidth_rate_register(uint8_t bandwidth_rate);
+adxl345_status_t adxl345_set_power_control_register(uint8_t power_control);
 
 adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration);
 
@@ -85,8 +85,8 @@ adxl345_status_t adxl345_setup_interrupt(
     uint8_t interrupt_map,
     adxl345_interrupt_callback_t callback);
 
-adxl345_status_t adxl345_read_register_interrupt_source(
-    uint8_t *interrupt_source_value);
+adxl345_status_t adxl345_read_interrupt_source_register(
+    uint8_t *interrupt_source);
 ```
 
 The public sensor APIs use a blocking design and propagate I²C failures through `adxl345_status_t`. Acceleration is returned as floating-point X, Y, and Z values in `g`.

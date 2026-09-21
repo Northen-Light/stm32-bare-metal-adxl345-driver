@@ -5,25 +5,25 @@
 
 static float scale_factor = ADXL345_SCALE_FACTOR_FULL_RES;
 
-static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte);
-static adxl345_status_t adxl345_single_byte_write(uint8_t register_address, uint8_t byte);
-static adxl345_status_t adxl345_multi_byte_read(uint8_t register_address, uint8_t *bytes, uint8_t length);
+static adxl345_status_t adxl345_register_single_byte_read(uint8_t register_address, uint8_t *byte);
+static adxl345_status_t adxl345_register_single_byte_write(uint8_t register_address, uint8_t byte);
+static adxl345_status_t adxl345_register_multi_byte_read(uint8_t register_address, uint8_t *bytes, uint8_t length);
 static adxl345_status_t adxl345_convert_i2c_to_adxl345_status(i2c_status_t status);
 
 
-adxl345_status_t adxl345_read_register_device_id(uint8_t *device_id) {
-  return adxl345_single_byte_read(ADXL345_REGISTER_DEVID_ID, device_id);
+adxl345_status_t adxl345_read_device_id_register(uint8_t *device_id) {
+  return adxl345_register_single_byte_read(ADXL345_REGISTER_DEVID_ID, device_id);
 }
 
-adxl345_status_t adxl345_set_register_data_format(uint8_t data_format) {
+adxl345_status_t adxl345_set_data_format_register(uint8_t data_format) {
   uint8_t range_bits;
   uint8_t data_format_value;
   adxl345_status_t status;
 
-  status = adxl345_single_byte_write(ADXL345_REGISTER_DATA_FORMAT, data_format);
+  status = adxl345_register_single_byte_write(ADXL345_REGISTER_DATA_FORMAT, data_format);
   if (status != ADXL345_STATUS_OK) return status;
 
-  status = adxl345_single_byte_read(ADXL345_REGISTER_DATA_FORMAT, &data_format_value);
+  status = adxl345_register_single_byte_read(ADXL345_REGISTER_DATA_FORMAT, &data_format_value);
   if (status != ADXL345_STATUS_OK) return status;
 
   if ((data_format_value & ADXL345_REGISTER_DATA_FORMAT_FULL_RES_BIT) == 0) {
@@ -50,12 +50,12 @@ adxl345_status_t adxl345_set_register_data_format(uint8_t data_format) {
   return status;
 }
 
-adxl345_status_t adxl345_set_register_bandwidth_rate(uint8_t bw_rate) {
-  return adxl345_single_byte_write(ADXL345_REGISTER_BW_RATE, bw_rate);
+adxl345_status_t adxl345_set_bandwidth_rate_register(uint8_t bandwidth_rate) {
+  return adxl345_register_single_byte_write(ADXL345_REGISTER_BW_RATE, bandwidth_rate);
 }
 
-adxl345_status_t adxl345_set_register_power_control(uint8_t power_ctl) {
-  return adxl345_single_byte_write(ADXL345_REGISTER_POWER_CTL, power_ctl);
+adxl345_status_t adxl345_set_power_control_register(uint8_t power_control) {
+  return adxl345_register_single_byte_write(ADXL345_REGISTER_POWER_CTL, power_control);
 }
 
 adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration) {
@@ -63,7 +63,7 @@ adxl345_status_t adxl345_read_acceleration(acceleration_t *acceleration) {
   uint8_t length = 6;
   adxl345_status_t status;
  
-  status = adxl345_multi_byte_read(ADXL345_REGISTER_DATAX0, raw_acceleration, length);
+  status = adxl345_register_multi_byte_read(ADXL345_REGISTER_DATAX0, raw_acceleration, length);
   if (status != ADXL345_STATUS_OK) return status;
 
   acceleration -> x = ((int16_t)((uint16_t)(raw_acceleration[1] << 8) | raw_acceleration[0]) * scale_factor) / 1000.0f;
@@ -78,32 +78,32 @@ adxl345_status_t adxl345_setup_interrupt(uint8_t interrupt_enable, uint8_t inter
 
   exti_set_interrupt_callback((exti_interrupt_callback_t)callback);
 
-  status = adxl345_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
+  status = adxl345_register_single_byte_write(ADXL345_REGISTER_INT_MAP, interrupt_map);
   if (status != ADXL345_STATUS_OK) return status;
 
-  status = adxl345_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
+  status = adxl345_register_single_byte_write(ADXL345_REGISTER_INT_ENABLE, interrupt_enable);
   if (status != ADXL345_STATUS_OK) return status;
 
 
   return status;
 }
 
-adxl345_status_t adxl345_read_register_interrupt_source(uint8_t *interrupt_source_value) {
-  return adxl345_single_byte_read(ADXL345_REGISTER_INT_SOURCE, interrupt_source_value);
+adxl345_status_t adxl345_read_interrupt_source_register(uint8_t *interrupt_source) {
+  return adxl345_register_single_byte_read(ADXL345_REGISTER_INT_SOURCE, interrupt_source);
 }
 
-static adxl345_status_t adxl345_single_byte_read(uint8_t register_address, uint8_t *byte) {
-  i2c_status_t status = i2c1_slave_single_byte_read(ADXL345_7BIT_I2C_ADDRESS, register_address, byte);
+static adxl345_status_t adxl345_register_single_byte_read(uint8_t register_address, uint8_t *byte) {
+  i2c_status_t status = i2c1_slave_register_single_byte_read(ADXL345_7BIT_I2C_ADDRESS, register_address, byte);
   return adxl345_convert_i2c_to_adxl345_status(status);
 }
 
-static adxl345_status_t adxl345_single_byte_write(uint8_t register_address, uint8_t byte) {
-  i2c_status_t status = i2c1_slave_single_byte_write(ADXL345_7BIT_I2C_ADDRESS, register_address, byte); 
+static adxl345_status_t adxl345_register_single_byte_write(uint8_t register_address, uint8_t byte) {
+  i2c_status_t status = i2c1_slave_register_single_byte_write(ADXL345_7BIT_I2C_ADDRESS, register_address, byte); 
   return adxl345_convert_i2c_to_adxl345_status(status);
 }
 
-static adxl345_status_t adxl345_multi_byte_read(uint8_t register_address, uint8_t *bytes, uint8_t length) {
-  i2c_status_t status = i2c1_slave_multi_byte_read(ADXL345_7BIT_I2C_ADDRESS, register_address, bytes, length); 
+static adxl345_status_t adxl345_register_multi_byte_read(uint8_t register_address, uint8_t *bytes, uint8_t length) {
+  i2c_status_t status = i2c1_slave_register_multi_byte_read(ADXL345_7BIT_I2C_ADDRESS, register_address, bytes, length); 
   return adxl345_convert_i2c_to_adxl345_status(status);
 }
 

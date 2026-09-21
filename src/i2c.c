@@ -39,7 +39,7 @@ void i2c1_init(void) {
   I2C1_CR1 |= I2C1_CR1_PE;
 }
 
-i2c_status_t i2c1_slave_single_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *byte) {
+i2c_status_t i2c1_slave_register_single_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *byte) {
   i2c_status_t status;
   uint32_t start_time_ms = systick_get_systick_ms();
 
@@ -109,7 +109,7 @@ i2c_status_t i2c1_slave_single_byte_read(uint8_t slave_address, uint8_t register
     return status;
 }
 
-i2c_status_t i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *bytes, uint8_t length) {
+i2c_status_t i2c1_slave_register_multi_byte_read(uint8_t slave_address, uint8_t register_address, uint8_t *bytes, uint8_t length) {
   i2c_status_t status;
   uint8_t byte_index = 0;
   uint32_t start_time_ms = systick_get_systick_ms();
@@ -194,7 +194,7 @@ i2c_status_t i2c1_slave_multi_byte_read(uint8_t slave_address, uint8_t register_
     return status;
 }
 
-i2c_status_t i2c1_slave_single_byte_write(uint8_t slave_address, uint8_t register_address, uint8_t byte) {
+i2c_status_t i2c1_slave_register_single_byte_write(uint8_t slave_address, uint8_t register_address, uint8_t byte) {
   i2c_status_t status;
   uint32_t start_time_ms = systick_get_systick_ms();
 
