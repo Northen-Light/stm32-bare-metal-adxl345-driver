@@ -51,7 +51,11 @@ SCL and SDA require pull-up resistors to 3.3V, which may already be present on t
 
 ## Hardware Setup
 
-STM32F103C8T6 connected to the ADXL345 module, with ST-Link used for programming and debugging. The logic analyzer monitors SCL, SDA, and the sensor interrupt line.
+## Hardware Setup
+
+![STM32F103 connected to the ADXL345, ST-Link, and logic analyzer](debugging/hardware-setup.jpeg)
+
+STM32F103C8T6 connected to the ADXL345 over I²C, with ST-Link for debugging and a logic analyzer monitoring SCL, SDA, and DATA_READY.
 
 ## Driver Architecture
 
