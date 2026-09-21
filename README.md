@@ -8,12 +8,11 @@ The project interfaces an STM32F103 with an Analog Devices ADXL345 over I²C1. I
 
 ### STM32 I²C Driver
 
-- Bare-metal I2C1 initialization
-- Register-level GPIO and I²C configuration
+- Register-level I2C1 and GPIO initialization
 - Standard-mode operation at 100 kHz with an 8 MHz peripheral clock
-- Single-byte register writes and reads
+- Polling-based single-byte register reads and writes
 - Multi-byte burst reads of three or more bytes
-- START, repeated START, ACK/NACK, and STOP handling
+- START, repeated START, ACK/NACK sequencing, and STOP generation
 - Bus error, arbitration loss, and NACK detection
 - SysTick-based transaction timeouts and basic error cleanup
 - Interrupt protection around critical receive sequences
@@ -21,12 +20,12 @@ The project interfaces an STM32F103 with an Analog Devices ADXL345 over I²C1. I
 ### ADXL345 Driver
 
 - Device ID and interrupt-source register reads
-- Measurement range configuration: ±2 g, ±4 g, ±8 g, and ±16 g
-- Full-resolution and fixed 10-bit measurement modes
-- Output data rate configuration through 200 Hz for this I²C setup
-- Measurement/standby, manual sleep, and low-power configuration
-- Six-byte XYZ burst reads and acceleration conversion to `g`
-- Cached scale factor derived from DATA_FORMAT readback
+- Configurable measurement ranges: ±2 g, ±4 g, ±8 g, and ±16 g
+- Full-resolution and fixed 10-bit modes
+- Configurable output data rates up to 200 Hz with 100 kHz I²C
+- Measurement, standby, sleep, and low-power mode configuration
+- Six-byte XYZ burst reads with signed acceleration conversion to `g`
+- Cached scale factor based on DATA_FORMAT register readback
 - DATA_READY interrupt configuration on INT1
 
 ## Hardware
@@ -48,7 +47,7 @@ The project interfaces an STM32F103 with an Analog Devices ADXL345 over I²C1. I
 | 3.3V | CS | Select I²C mode |
 | 3.3V | SDO / ALT ADDRESS | Select address `0x1D` |
 
-These connections match the current firmware. SCL and SDA require pull-up resistors to 3.3V; check whether the module already includes them. Connecting SDO to GND selects address `0x53` and requires changing the driver address.
+SCL and SDA require pull-up resistors to 3.3V, which may already be present on the module. The driver uses the 7-bit address `0x1D` with SDO tied to 3.3V. Tying SDO to GND selects `0x53`; update the driver address accordingly.
 
 ## Hardware Setup
 
@@ -109,11 +108,11 @@ The sensor's INT1 output connects to PB0, mapped to EXTI0.
 
 The EXTI callback sets a `volatile` data-ready flag. The main loop clears the flag before reading the sensor and increments `samples_captured` after a successful read.
 
-This keeps blocking I²C transfers outside the interrupt handler and allows SysTick to advance during timeout checks. DATA_READY provides notification; the I²C transfer itself remains polling-based.
+The interrupt handler only signals that data is ready. The main loop performs the polling-based I²C read, allowing SysTick interrupts to maintain the timeout timebase.
 
 ## Error Handling
 
-All waits within a transaction share a 10 ms timeout budget. The driver checks bus-error, arbitration-loss, and NACK flags while waiting for transfer events.
+Each transaction uses a shared 10 ms timeout across its polling waits. While waiting for transfer events, the driver checks for bus errors, arbitration loss, and NACKs.
 
 On failure, basic cleanup requests STOP where applicable and uses a separate 10 ms wait budget. It avoids requesting STOP when arbitration loss is detected, clears handled error flags, and reports `RECOVERY_FAILED` if the STOP wait times out.
 
